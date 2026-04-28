@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { motion } from "motion/react"
 import {
   Home,
@@ -45,7 +45,16 @@ const bottomNavItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+
+  const handleLogout = () => {
+    try {
+      localStorage.removeItem("isLoggedIn")
+    } catch (e) {}
+    setIsMobileOpen(false)
+    router.replace("/login")
+  }
 
   const NavContent = () => (
     <>
@@ -160,7 +169,11 @@ export function DashboardSidebar() {
             </Link>
           )
         })}
-        <button className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-500/10 transition-all duration-200">
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-500/10 transition-all duration-200"
+        >
           <LogOut className="w-5 h-5" />
           <span className="font-medium">Logout</span>
         </button>

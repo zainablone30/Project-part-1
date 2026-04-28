@@ -27,7 +27,10 @@ export default function LoginPage() {
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
-      router.push("/dashboard")
+      try {
+        localStorage.setItem("isLoggedIn", "true")
+      } catch (e) {}
+      router.replace("/dashboard")
     }, 1500)
   }
 
@@ -35,7 +38,10 @@ export default function LoginPage() {
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
-      router.push("/dashboard")
+      try {
+        localStorage.setItem("isLoggedIn", "true")
+      } catch (e) {}
+      router.replace("/dashboard")
     }, 1500)
   }
 

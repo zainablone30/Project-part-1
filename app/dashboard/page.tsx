@@ -1,6 +1,7 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { motion } from "motion/react"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { SearchHeader } from "@/components/dashboard/search-header"
@@ -121,8 +122,20 @@ const nearbyRestaurants = [
 ]
 
 export default function DashboardPage() {
+  const router = useRouter()
   const [hasActiveOrder, setHasActiveOrder] = useState(true)
   const [cartCount, setCartCount] = useState(2)
+
+  useEffect(() => {
+    try {
+      const logged = localStorage.getItem("isLoggedIn")
+      if (logged !== "true") {
+        router.replace("/login")
+      }
+    } catch (e) {
+      router.replace("/login")
+    }
+  }, [router])
 
   return (
     <div className="min-h-screen bg-background">

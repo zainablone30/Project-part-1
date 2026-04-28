@@ -27,7 +27,11 @@ export function SearchHeader({
     `Mood kya hai, ${userName}?`,
   ]
 
-  const [greeting] = useState(greetings[Math.floor(Math.random() * greetings.length)])
+  const greetingIndex =
+    userName
+      .split("")
+      .reduce((acc, ch) => acc + ch.charCodeAt(0), 0) % greetings.length
+  const greeting = greetings[greetingIndex]
 
   const quickSearches = [
     "Biryani",

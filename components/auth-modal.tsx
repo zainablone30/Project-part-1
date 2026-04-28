@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { X, Mail, Lock, Eye, EyeOff, User, Utensils, ArrowRight, Check } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 interface AuthModalProps {
   isOpen: boolean
@@ -11,6 +12,7 @@ interface AuthModalProps {
 }
 
 export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalProps) {
+  const router = useRouter()
   const [mode, setMode] = useState<"login" | "signup">(initialMode)
   const [showPassword, setShowPassword] = useState(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
@@ -36,8 +38,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
-      alert(`${mode === "login" ? "Login" : "Account created"} successful! (Demo)`)
+      try {
+        localStorage.setItem("isLoggedIn", "true")
+      } catch (e) {}
       onClose()
+      router.replace("/dashboard")
     }, 1500)
   }
 
@@ -45,8 +50,11 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
     setIsLoading(true)
     setTimeout(() => {
       setIsLoading(false)
-      alert("Google authentication successful! (Demo)")
+      try {
+        localStorage.setItem("isLoggedIn", "true")
+      } catch (e) {}
       onClose()
+      router.replace("/dashboard")
     }, 1500)
   }
 
@@ -236,9 +244,9 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
                         />
                         <span className="text-card-foreground">Remember me</span>
                       </label>
-                      <a href="#" className="text-primary hover:text-accent font-medium">
+                      <button type="button" className="text-primary hover:text-accent font-medium">
                         Forgot password?
-                      </a>
+                      </button>
                     </div>
                   ) : (
                     <div className="flex items-start gap-2 text-sm">
@@ -249,13 +257,13 @@ export function AuthModal({ isOpen, onClose, initialMode = "login" }: AuthModalP
                       />
                       <span className="text-muted-foreground">
                         I agree to the{" "}
-                        <a href="#" className="text-primary hover:text-accent font-medium">
+                        <button type="button" className="text-primary hover:text-accent font-medium">
                           Terms of Service
-                        </a>{" "}
+                        </button>{" "}
                         and{" "}
-                        <a href="#" className="text-primary hover:text-accent font-medium">
+                        <button type="button" className="text-primary hover:text-accent font-medium">
                           Privacy Policy
-                        </a>
+                        </button>
                       </span>
                     </div>
                   )}
