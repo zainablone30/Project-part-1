@@ -11,6 +11,7 @@ import { QuickCategories } from "@/components/dashboard/quick-categories"
 import { PromoBanner } from "@/components/dashboard/promo-banner"
 import { AISuggestions } from "@/components/dashboard/ai-suggestions"
 import { FoodCard } from "@/components/dashboard/food-card"
+import { OrderTracker } from "@/components/dashboard/order-tracker"
 import { PinguChef } from "@/components/pingu-chef"
 
 type FoodItem = {
@@ -49,8 +50,12 @@ function mapFood(f: any): FoodItem {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [hasActiveOrder, setHasActiveOrder] = useState(true)
+  const [userName, setUserName] = useState("Foodie")
+  const [hasActiveOrder] = useState(true)
   const [cartCount, setCartCount] = useState(2)
+  const [loading, setLoading] = useState(true)
+  const [trendingFoods, setTrendingFoods] = useState<FoodItem[]>([])
+  const [nearbyFoods, setNearbyFoods] = useState<FoodItem[]>([])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
