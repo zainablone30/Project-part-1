@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { Utensils, Menu, X, LogIn, UserPlus } from "lucide-react"
 import Link from "next/link"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface NavbarProps {
   onLoginClick: () => void
@@ -89,6 +90,7 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
 
             {/* Auth Buttons */}
             <div className="hidden md:flex items-center gap-3">
+              <ThemeToggle />
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}

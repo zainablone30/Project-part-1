@@ -10,7 +10,6 @@ import { QuickCategories } from "@/components/dashboard/quick-categories"
 import { PromoBanner } from "@/components/dashboard/promo-banner"
 import { AISuggestions } from "@/components/dashboard/ai-suggestions"
 import { FoodCard } from "@/components/dashboard/food-card"
-import { OrderTracker } from "@/components/dashboard/order-tracker"
 import { PinguChef } from "@/components/pingu-chef"
 
 // Sample food data
@@ -123,7 +122,6 @@ const nearbyRestaurants = [
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [hasActiveOrder, setHasActiveOrder] = useState(true)
   const [cartCount, setCartCount] = useState(2)
 
   useEffect(() => {
@@ -167,25 +165,6 @@ export default function DashboardPage() {
               </p>
             </div>
           </motion.div>
-
-          {/* Active Order Tracker */}
-          {hasActiveOrder && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <OrderTracker
-                orderId="DK-2847"
-                currentStage={2}
-                estimatedTime="25-30 min"
-                items={[
-                  { name: "Chicken Biryani", quantity: 2 },
-                  { name: "Raita", quantity: 1 },
-                  { name: "Pepsi 1.5L", quantity: 1 },
-                ]}
-              />
-            </motion.div>
-          )}
 
           {/* Promo Banner */}
           <PromoBanner />

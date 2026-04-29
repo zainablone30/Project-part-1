@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { Search, MapPin, Bell, ShoppingBag, Mic, X } from "lucide-react"
+import { ThemeToggle } from "@/components/theme-toggle"
 
 interface SearchHeaderProps {
   userName?: string
@@ -57,6 +58,9 @@ export function SearchHeader({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
+          <div className="hidden sm:flex">
+            <ThemeToggle />
+          </div>
           <button className="relative p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors">
             <Bell className="w-5 h-5 text-muted-foreground" />
             {notificationCount > 0 && (
