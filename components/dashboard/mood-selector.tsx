@@ -3,16 +3,17 @@
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { Sparkles } from "lucide-react"
+import { useLanguage } from "@/components/language-provider"
 
-const moods = [
-  { emoji: "😋", label: "Bhookh Lagi", color: "from-orange-400 to-red-500", urdu: "Kuch mazedaar khana hai!" },
-  { emoji: "😴", label: "Thaka Hua", color: "from-blue-400 to-purple-500", urdu: "Comfort food chahiye..." },
-  { emoji: "🥳", label: "Celebration", color: "from-pink-400 to-yellow-500", urdu: "Party time! Biryani lao!" },
-  { emoji: "🤒", label: "Tabiyat Kharab", color: "from-green-400 to-teal-500", urdu: "Halka khana suggest karo" },
-  { emoji: "💪", label: "Gym Mode", color: "from-red-400 to-orange-500", urdu: "Protein wala khana do!" },
-  { emoji: "🌙", label: "Late Night", color: "from-indigo-400 to-purple-600", urdu: "Raat ki bhook hai..." },
-  { emoji: "☕", label: "Chai Time", color: "from-amber-400 to-orange-500", urdu: "Chai aur nashta!" },
-  { emoji: "🔥", label: "Spicy Mood", color: "from-red-500 to-orange-600", urdu: "Teekha khana chahiye!" },
+const moodMeta = [
+  { emoji: "😋", color: "from-orange-400 to-red-500" },
+  { emoji: "😴", color: "from-blue-400 to-purple-500" },
+  { emoji: "🥳", color: "from-pink-400 to-yellow-500" },
+  { emoji: "🤒", color: "from-green-400 to-teal-500" },
+  { emoji: "💪", color: "from-red-400 to-orange-500" },
+  { emoji: "🌙", color: "from-indigo-400 to-purple-600" },
+  { emoji: "☕", color: "from-amber-400 to-orange-500" },
+  { emoji: "🔥", color: "from-red-500 to-orange-600" },
 ]
 
 interface MoodSelectorProps {
@@ -20,6 +21,12 @@ interface MoodSelectorProps {
 }
 
 export function MoodSelector({ onMoodSelect }: MoodSelectorProps) {
+  const { t } = useLanguage()
+  const moods = moodMeta.map((meta, index) => ({
+    ...meta,
+    label: t(`mood_label_${index + 1}`),
+    tip: t(`mood_tip_${index + 1}`),
+  }))
   const [selectedMood, setSelectedMood] = useState<typeof moods[0] | null>(null)
   const [isExpanded, setIsExpanded] = useState(false)
 
@@ -35,9 +42,9 @@ export function MoodSelector({ onMoodSelect }: MoodSelectorProps) {
         <div>
           <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
-            Aaj ka Mood Kya Hai?
+            {t("dashboard_mood_title")}
           </h3>
-          <p className="text-sm text-muted-foreground">AI tumhare mood ke hisaab se khana dhundega</p>
+          <p className="text-sm text-muted-foreground">{t("dashboard_mood_subtitle")}</p>
         </div>
         {selectedMood && (
           <motion.div
@@ -83,7 +90,7 @@ export function MoodSelector({ onMoodSelect }: MoodSelectorProps) {
                   whileHover={{ opacity: 1, y: 0 }}
                   className="absolute -bottom-12 left-1/2 -translate-x-1/2 bg-foreground text-background text-xs px-3 py-1.5 rounded-lg whitespace-nowrap z-10 opacity-0 group-hover:opacity-100 transition-opacity"
                 >
-                  {mood.urdu}
+                  {mood.tip}
                   <div className="absolute -top-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-foreground rotate-45" />
                 </motion.div>
               )}
@@ -99,8 +106,8 @@ export function MoodSelector({ onMoodSelect }: MoodSelectorProps) {
           className="mt-4 p-4 rounded-2xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20"
         >
           <p className="text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">Pingu Chef:</span>{" "}
-            {`"${selectedMood.urdu}" - Main dhund raha hoon perfect khana! 🐧`}
+            <span className="font-semibold text-foreground">{t("pingu_chef_label")}:</span>{" "}
+            {`"${selectedMood.tip}" - ${t("pingu_searching")}`}
           </p>
         </motion.div>
       )}

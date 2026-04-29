@@ -1,11 +1,12 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion, AnimatePresence } from "motion/react"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { OrderTracker } from "@/components/dashboard/order-tracker"
 import { PinguChef } from "@/components/pingu-chef"
-import { Package, Clock, CheckCircle, XCircle, RotateCcw, ChevronRight } from "lucide-react"
+import { Package, Clock, CheckCircle, XCircle, RotateCcw, ChevronRight, ArrowLeft } from "lucide-react"
 
 const orders = [
   {
@@ -75,6 +76,7 @@ const statusConfig = {
 }
 
 export default function OrdersPage() {
+  const router = useRouter()
   const [selectedOrder, setSelectedOrder] = useState<string | null>("DK-2847")
   const activeOrder = orders.find((o) => o.status === "preparing")
 
@@ -84,6 +86,14 @@ export default function OrdersPage() {
 
       <main className="lg:ml-72 min-h-screen p-6 pt-20 lg:pt-6">
         <div className="mb-8">
+          <button
+            type="button"
+            onClick={() => router.back()}
+            className="mb-4 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            Back
+          </button>
           <h1 className="text-2xl font-bold text-foreground mb-2">Mere Orders</h1>
           <p className="text-muted-foreground">Apne orders track karo aur history dekho</p>
         </div>

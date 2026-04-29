@@ -2,10 +2,11 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "motion/react"
+import { useRouter } from "next/navigation"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { FoodCard } from "@/components/dashboard/food-card"
 import { PinguChef } from "@/components/pingu-chef"
-import { Search, SlidersHorizontal, X } from "lucide-react"
+import { Search, SlidersHorizontal, X, ArrowLeft } from "lucide-react"
 import { supabase } from "@/lib/supabase"
 
 type FoodItem = {
@@ -52,6 +53,7 @@ const sortOptions = [
 ]
 
 export default function ExplorePage() {
+  const router = useRouter()
   const [allFoods, setAllFoods] = useState<FoodItem[]>([])
   const [categories, setCategories] = useState<{ name: string; emoji: string }[]>([
     { name: "All", emoji: "🍽️" },
@@ -121,6 +123,14 @@ export default function ExplorePage() {
       <main className="lg:ml-72 min-h-screen p-6 pt-20 lg:pt-6">
         <div className="flex items-center justify-between mb-6">
           <div>
+            <button
+              type="button"
+              onClick={() => router.back()}
+              className="mb-3 inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </button>
             <h1 className="text-2xl font-bold text-foreground mb-1">Explore Khana</h1>
             <p className="text-muted-foreground">Dhundo apna favorite khana</p>
           </div>

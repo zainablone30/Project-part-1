@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { Utensils, Menu, X, LogIn, UserPlus } from "lucide-react"
 import Link from "next/link"
+import { useLanguage } from "@/components/language-provider"
 import { ThemeToggle } from "@/components/theme-toggle"
 
 interface NavbarProps {
@@ -12,6 +13,7 @@ interface NavbarProps {
 }
 
 export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
+  const { t } = useLanguage()
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
@@ -24,10 +26,10 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
   }, [])
 
   const navLinks = [
-    { href: "#features", label: "Features" },
-    { href: "#how-it-works", label: "How It Works" },
-    { href: "#ai-features", label: "AI Powers" },
-    { href: "#chefs", label: "For Chefs" },
+    { href: "#features", label: t("nav_features") },
+    { href: "#how-it-works", label: t("nav_how") },
+    { href: "#ai-features", label: t("nav_ai") },
+    { href: "#chefs", label: t("nav_chefs") },
   ]
 
   return (
@@ -102,7 +104,7 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
                 }`}
               >
                 <LogIn className="w-4 h-4" />
-                Login
+                {t("nav_login")}
               </motion.button>
               <motion.button
                 whileHover={{ scale: 1.02, boxShadow: "0 8px 30px rgba(217, 119, 6, 0.3)" }}
@@ -111,7 +113,7 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
                 className="px-5 py-2.5 bg-primary text-primary-foreground rounded-xl text-sm font-semibold flex items-center gap-2 shadow-lg shadow-primary/25 hover:shadow-xl transition-all"
               >
                 <UserPlus className="w-4 h-4" />
-                Get Started
+                {t("nav_get_started")}
               </motion.button>
             </div>
 
@@ -159,7 +161,7 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
                     className="w-full px-4 py-3 rounded-xl text-foreground hover:bg-primary/10 hover:text-primary transition-colors font-medium flex items-center justify-center gap-2"
                   >
                     <LogIn className="w-4 h-4" />
-                    Login
+                    {t("nav_login")}
                   </button>
                   <button
                     onClick={() => {
@@ -169,7 +171,7 @@ export function Navbar({ onLoginClick, onSignupClick }: NavbarProps) {
                     className="w-full px-4 py-3 bg-primary text-primary-foreground rounded-xl font-semibold flex items-center justify-center gap-2 shadow-lg"
                   >
                     <UserPlus className="w-4 h-4" />
-                    Get Started Free
+                    {t("nav_get_started")}
                   </button>
                 </div>
               </div>

@@ -24,30 +24,32 @@ import {
 import { cn } from "@/lib/utils"
 import { PinguChef } from "@/components/pingu-chef"
 import { supabase } from "@/lib/supabase"
-
-const mainNavItems = [
-  { icon: Home, label: "Home", href: "/dashboard" },
-  { icon: Search, label: "Explore", href: "/dashboard/explore" },
-  { icon: Sparkles, label: "AI Suggest", href: "/dashboard/ai-suggest" },
-  { icon: Heart, label: "Favorites", href: "/dashboard/favorites" },
-  { icon: ShoppingBag, label: "Orders", href: "/dashboard/orders" },
-]
-
-const aiFeatures = [
-  { icon: Utensils, label: "MediMenu AI", href: "/dashboard/medimenu", badge: "Health" },
-  { icon: MapPin, label: "CuisineGPS", href: "/dashboard/cuisinegps", badge: "Tourist" },
-  { icon: ChefHat, label: "Taste of Pakistan", href: "/dashboard/taste-pakistan", badge: "Desi" },
-]
-
-const bottomNavItems = [
-  { icon: User, label: "Profile", href: "/dashboard/profile" },
-  { icon: Settings, label: "Settings", href: "/dashboard/settings" },
-]
+import { useLanguage } from "@/components/language-provider"
 
 export function DashboardSidebar() {
+  const { t } = useLanguage()
   const pathname = usePathname()
   const router = useRouter()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
+
+  const mainNavItems = [
+    { icon: Home, label: t("sidebar_home"), href: "/dashboard" },
+    { icon: Search, label: t("sidebar_explore"), href: "/dashboard/explore" },
+    { icon: Sparkles, label: t("sidebar_ai_suggest"), href: "/dashboard/ai-suggest" },
+    { icon: Heart, label: t("sidebar_favorites"), href: "/dashboard/favorites" },
+    { icon: ShoppingBag, label: t("sidebar_orders"), href: "/dashboard/orders" },
+  ]
+
+  const aiFeatures = [
+    { icon: Utensils, label: t("sidebar_medimenu"), href: "/dashboard/medimenu", badge: t("sidebar_badge_health") },
+    { icon: MapPin, label: t("sidebar_cuisinegps"), href: "/dashboard/cuisinegps", badge: t("sidebar_badge_tourist") },
+    { icon: ChefHat, label: t("sidebar_taste"), href: "/dashboard/taste-pakistan", badge: t("sidebar_badge_desi") },
+  ]
+
+  const bottomNavItems = [
+    { icon: User, label: t("sidebar_profile"), href: "/dashboard/profile" },
+    { icon: Settings, label: t("sidebar_settings"), href: "/dashboard/settings" },
+  ]
 
   const handleLogout = async () => {
     setIsMobileOpen(false)
@@ -65,7 +67,7 @@ export function DashboardSidebar() {
           </div>
           <div>
             <h1 className="font-bold text-lg text-foreground">DastarKhan</h1>
-            <p className="text-xs text-muted-foreground">AI Food Buddy</p>
+            <p className="text-xs text-muted-foreground">{t("sidebar_logo_subtitle")}</p>
           </div>
         </Link>
       </div>
@@ -73,7 +75,7 @@ export function DashboardSidebar() {
       {/* Main Navigation */}
       <nav className="flex-1 p-4 space-y-2">
         <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-3">
-          Menu
+          {t("sidebar_menu")}
         </p>
         {mainNavItems.map((item) => {
           const isActive = pathname === item.href
@@ -104,7 +106,7 @@ export function DashboardSidebar() {
         {/* AI Features */}
         <div className="pt-4">
           <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-3 mb-3">
-            AI Features
+            {t("sidebar_ai_features")}
           </p>
           {aiFeatures.map((item) => {
             const isActive = pathname === item.href
@@ -141,8 +143,8 @@ export function DashboardSidebar() {
         <div className="flex items-center gap-3">
           <PinguChef size="sm" showQuote={false} />
           <div>
-            <p className="text-sm font-semibold text-foreground">Pingu Chef</p>
-            <p className="text-xs text-muted-foreground">Your food buddy!</p>
+            <p className="text-sm font-semibold text-foreground">{t("sidebar_pingu_title")}</p>
+            <p className="text-xs text-muted-foreground">{t("sidebar_pingu_subtitle")}</p>
           </div>
         </div>
       </div>
@@ -174,7 +176,7 @@ export function DashboardSidebar() {
           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-red-500 hover:bg-red-500/10 transition-all duration-200"
         >
           <LogOut className="w-5 h-5" />
-          <span className="font-medium">Logout</span>
+          <span className="font-medium">{t("sidebar_logout")}</span>
         </button>
       </div>
     </>

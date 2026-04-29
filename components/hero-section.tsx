@@ -3,18 +3,20 @@
 import { motion } from "motion/react"
 import { Sparkles, Heart, Leaf, ShoppingBag, Utensils, ArrowRight, Play } from "lucide-react"
 import { useState } from "react"
+import { useLanguage } from "@/components/language-provider"
 
 interface HeroSectionProps {
   onGetStarted: () => void
 }
 
 export function HeroSection({ onGetStarted }: HeroSectionProps) {
+  const { t } = useLanguage()
   const [isVideoPlaying, setIsVideoPlaying] = useState(true)
 
   const stats = [
-    { icon: Heart, label: "100% Homemade", color: "text-accent" },
-    { icon: Leaf, label: "Organic Ingredients", color: "text-green-500" },
-    { icon: Sparkles, label: "AI Personalized", color: "text-primary" },
+    { icon: Heart, label: t("hero_stat_1"), color: "text-accent" },
+    { icon: Leaf, label: t("hero_stat_2"), color: "text-green-500" },
+    { icon: Sparkles, label: t("hero_stat_3"), color: "text-primary" },
   ]
 
   return (
@@ -50,7 +52,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
           >
             <Sparkles className="w-4 h-4 text-primary" />
             <span className="text-white/90 text-sm font-medium">
-              Pakistan&apos;s First AI-Powered Food Platform
+              {t("hero_badge")}
             </span>
           </motion.div>
 
@@ -61,11 +63,11 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 leading-tight"
           >
-            <span className="block text-balance">Eat According to</span>
+            <span className="block text-balance">{t("hero_title_line1")}</span>
             <span className="block mt-2">
-              <span className="text-primary">Your Mood</span>
-              <span className="text-white"> & </span>
-              <span className="text-accent">Health</span>
+              <span className="text-primary">{t("hero_title_line2_primary")}</span>
+              <span className="text-white">{t("hero_title_line2_amp")}</span>
+              <span className="text-accent">{t("hero_title_line2_secondary")}</span>
             </span>
           </motion.h1>
 
@@ -76,8 +78,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             transition={{ duration: 0.6, delay: 0.2 }}
             className="text-lg sm:text-xl md:text-2xl text-white/80 max-w-3xl mx-auto mb-10 text-pretty"
           >
-            AI-powered personalized meals crafted by home chefs, tailored to your 
-            health conditions, mood, and dietary needs
+            {t("hero_subtitle")}
           </motion.p>
 
           {/* CTA Buttons */}
@@ -94,7 +95,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
               className="group px-8 py-4 bg-primary text-primary-foreground rounded-2xl text-lg font-semibold flex items-center gap-3 shadow-2xl shadow-primary/30 transition-all"
             >
               <ShoppingBag className="w-5 h-5" />
-              Order Your Meal
+              {t("hero_cta_primary")}
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
             </motion.button>
             <motion.button
@@ -103,7 +104,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
               className="px-8 py-4 bg-white/10 backdrop-blur-md text-white rounded-2xl text-lg font-semibold border border-white/20 flex items-center gap-3 transition-all"
             >
               <Utensils className="w-5 h-5" />
-              Become a Chef
+              {t("hero_cta_secondary")}
             </motion.button>
           </motion.div>
 

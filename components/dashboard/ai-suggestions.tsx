@@ -4,57 +4,51 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { Sparkles, Heart, Stethoscope, Globe, ChefHat, ArrowRight } from "lucide-react"
 import { PinguChef } from "@/components/pingu-chef"
+import { useLanguage } from "@/components/language-provider"
 
-const aiModes = [
+const aiModesMeta = [
   {
     id: "medimenu",
-    name: "MediMenu AI",
-    nameUrdu: "صحت کا ساتھی",
-    description: "Health conditions ke hisaab se khana",
     icon: Stethoscope,
     color: "from-green-500 to-emerald-600",
     bgColor: "bg-green-500/10",
-    features: ["Diabetes Friendly", "Heart Healthy", "Low Sodium"],
-    quote: "Sehat bhi, mazaa bhi! 💪",
   },
   {
     id: "cuisinegps",
-    name: "CuisineGPS",
-    nameUrdu: "کھانے کی رہنمائی",
-    description: "Foreign food ko local taste mein dhundo",
     icon: Globe,
     color: "from-blue-500 to-indigo-600",
     bgColor: "bg-blue-500/10",
-    features: ["Similar Taste", "Local Options", "Price Match"],
-    quote: "Duniya ka khana, apni mitti ka swad! 🌍",
   },
   {
     id: "tasteofpakistan",
-    name: "Taste of Pakistan",
-    nameUrdu: "پاکستان کا ذائقہ",
-    description: "Authentic desi khana for tourists",
     icon: Heart,
     color: "from-orange-500 to-red-600",
     bgColor: "bg-orange-500/10",
-    features: ["Must Try", "Regional Special", "Street Food"],
-    quote: "Pakistan ke zaike se milao! 🇵🇰",
   },
   {
     id: "smartkitchen",
-    name: "Smart Kitchen",
-    nameUrdu: "ذہین باورچی خانہ",
-    description: "Ghar ke ingredients se recipes",
     icon: ChefHat,
     color: "from-purple-500 to-pink-600",
     bgColor: "bg-purple-500/10",
-    features: ["Waste Less", "Budget Friendly", "Quick Recipes"],
-    quote: "Jo hai ghar mein, wohi hai khaane mein! 🏠",
   },
 ]
 
 export function AISuggestions() {
+  const { t } = useLanguage()
   const [selectedMode, setSelectedMode] = useState<string | null>(null)
   const [isExpanded, setIsExpanded] = useState(false)
+
+  const aiModes = aiModesMeta.map((mode, index) => ({
+    ...mode,
+    name: t(`ai_mode_${index + 1}_name`),
+    description: t(`ai_mode_${index + 1}_desc`),
+    quote: t(`ai_mode_${index + 1}_quote`),
+    features: [
+      t(`ai_mode_${index + 1}_feat_1`),
+      t(`ai_mode_${index + 1}_feat_2`),
+      t(`ai_mode_${index + 1}_feat_3`),
+    ],
+  }))
 
   const currentMode = aiModes.find((m) => m.id === selectedMode)
 
@@ -65,8 +59,8 @@ export function AISuggestions() {
           <Sparkles className="w-6 h-6 text-white" />
         </div>
         <div>
-          <h3 className="text-lg font-bold text-foreground">AI Food Assistant</h3>
-          <p className="text-sm text-muted-foreground">Apna mode choose karo</p>
+          <h3 className="text-lg font-bold text-foreground">{t("ai_title")}</h3>
+          <p className="text-sm text-muted-foreground">{t("ai_subtitle")}</p>
         </div>
       </div>
 
@@ -142,7 +136,7 @@ export function AISuggestions() {
                     ))}
                   </div>
                   <button className="flex items-center gap-2 px-4 py-2 rounded-full bg-white text-foreground font-semibold text-sm hover:bg-white/90 transition-colors">
-                    Shuru Karo <ArrowRight className="w-4 h-4" />
+                    {t("ai_start")} <ArrowRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>

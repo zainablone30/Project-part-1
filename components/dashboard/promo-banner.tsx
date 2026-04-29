@@ -4,40 +4,29 @@ import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { PinguChef } from "@/components/pingu-chef"
+import { useLanguage } from "@/components/language-provider"
 
-const promos = [
+const promoMeta = [
   {
     id: 1,
-    title: "Biryani Festival!",
-    subtitle: "50% OFF on all biryanis",
-    description: "Eid ki khushiyan, biryani ke saath!",
     gradient: "from-orange-500 via-red-500 to-pink-500",
     emoji: "🍛",
     code: "BIRYANI50",
   },
   {
     id: 2,
-    title: "Free Delivery Week",
-    subtitle: "Rs. 0 delivery on orders above Rs. 500",
-    description: "Delivery free, khushi double!",
     gradient: "from-green-500 via-emerald-500 to-teal-500",
     emoji: "🚀",
     code: "FREEDEL",
   },
   {
     id: 3,
-    title: "Chai & Paratha Deal",
-    subtitle: "Rs. 199 only",
-    description: "Subah ki nashta, din ki shuruwat!",
     gradient: "from-amber-500 via-orange-500 to-red-500",
     emoji: "☕",
     code: "NASHTA199",
   },
   {
     id: 4,
-    title: "Late Night Cravings",
-    subtitle: "20% OFF after 10 PM",
-    description: "Raat ki bhook, Pingu ka saath!",
     gradient: "from-indigo-500 via-purple-500 to-pink-500",
     emoji: "🌙",
     code: "NIGHT20",
@@ -45,6 +34,7 @@ const promos = [
 ]
 
 export function PromoBanner() {
+  const { t } = useLanguage()
   const [currentIndex, setCurrentIndex] = useState(0)
   const [direction, setDirection] = useState(0)
 
@@ -52,7 +42,7 @@ export function PromoBanner() {
     const timer = setInterval(() => {
       setDirection(1)
       setCurrentIndex((prev) => (prev + 1) % promos.length)
-    }, 5000)
+    }, 3000)
 
     return () => clearInterval(timer)
   }, [])
@@ -67,6 +57,12 @@ export function PromoBanner() {
     setCurrentIndex((prev) => (prev + 1) % promos.length)
   }
 
+  const promos = promoMeta.map((promo) => ({
+    ...promo,
+    title: t(`promo_${promo.id}_title`),
+    subtitle: t(`promo_${promo.id}_subtitle`),
+    description: t(`promo_${promo.id}_desc`),
+  }))
   const currentPromo = promos[currentIndex]
 
   const variants = {
@@ -113,7 +109,7 @@ export function PromoBanner() {
                     {currentPromo.code}
                   </span>
                   <button className="px-4 py-2 rounded-full bg-white text-foreground font-semibold text-sm hover:bg-white/90 transition-colors">
-                    Use Karo
+                    {t("promo_use")}
                   </button>
                 </div>
               </motion.div>
@@ -138,18 +134,7 @@ export function PromoBanner() {
       </AnimatePresence>
 
       {/* Navigation */}
-      <button
-        onClick={handlePrev}
-        className="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-      >
-        <ChevronLeft className="w-5 h-5" />
-      </button>
-      <button
-        onClick={handleNext}
-        className="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white hover:bg-white/30 transition-colors"
-      >
-        <ChevronRight className="w-5 h-5" />
-      </button>
+      {/* Side buttons removed by request */}
 
       {/* Dots */}
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2">

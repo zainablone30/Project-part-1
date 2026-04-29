@@ -13,6 +13,7 @@ import { AISuggestions } from "@/components/dashboard/ai-suggestions"
 import { FoodCard } from "@/components/dashboard/food-card"
 import { OrderTracker } from "@/components/dashboard/order-tracker"
 import { PinguChef } from "@/components/pingu-chef"
+import { useLanguage } from "@/components/language-provider"
 
 type FoodItem = {
   id: string
@@ -50,8 +51,7 @@ function mapFood(f: any): FoodItem {
 
 export default function DashboardPage() {
   const router = useRouter()
-  const [userName, setUserName] = useState("Foodie")
-  const [hasActiveOrder] = useState(true)
+  const [hasActiveOrder, setHasActiveOrder] = useState(true)
   const [cartCount, setCartCount] = useState(2)
   const [loading, setLoading] = useState(true)
   const [trendingFoods, setTrendingFoods] = useState<FoodItem[]>([])
@@ -122,32 +122,13 @@ export default function DashboardPage() {
             <PinguChef size="sm" showQuote={false} mood="happy" />
             <div>
               <p className="font-bold text-foreground">
-                Assalam o Alaikum, {userName}! 👋
+                {t("dashboard_greeting")}, {userName}! 👋
               </p>
               <p className="text-sm text-muted-foreground">
-                Main Pingu hoon, tumhara food buddy! Aaj kya khana hai?
+                {t("dashboard_subtitle")}
               </p>
             </div>
           </motion.div>
-
-          {/* Active Order Tracker */}
-          {hasActiveOrder && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <OrderTracker
-                orderId="DK-2847"
-                currentStage={2}
-                estimatedTime="25-30 min"
-                items={[
-                  { name: "Chicken Biryani", quantity: 2 },
-                  { name: "Raita", quantity: 1 },
-                  { name: "Pepsi 1.5L", quantity: 1 },
-                ]}
-              />
-            </motion.div>
-          )}
 
           <PromoBanner />
           <MoodSelector />
@@ -158,10 +139,12 @@ export default function DashboardPage() {
           <section>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-xl font-bold text-foreground">Trending Abhi 🔥</h3>
-                <p className="text-sm text-muted-foreground">Sab yahi order kar rahe hain!</p>
+                <h3 className="text-xl font-bold text-foreground">{t("dashboard_trending_title")}</h3>
+                <p className="text-sm text-muted-foreground">{t("dashboard_trending_desc")}</p>
               </div>
-              <button className="text-sm text-primary font-medium hover:underline">Sab dekho →</button>
+              <a href="/dashboard/explore" className="text-sm text-primary font-medium hover:underline">
+                {t("dashboard_view_all")}
+              </a>
             </div>
 
             {loading ? (
@@ -191,10 +174,12 @@ export default function DashboardPage() {
             <section>
               <div className="flex items-center justify-between mb-4">
                 <div>
-                  <h3 className="text-xl font-bold text-foreground">Paas Mein 📍</h3>
-                  <p className="text-sm text-muted-foreground">Jaldi delivery, paas se!</p>
+                  <h3 className="text-xl font-bold text-foreground">{t("dashboard_nearby_title")}</h3>
+                  <p className="text-sm text-muted-foreground">{t("dashboard_nearby_desc")}</p>
                 </div>
-                <button className="text-sm text-primary font-medium hover:underline">Sab dekho →</button>
+                <a href="/dashboard/explore" className="text-sm text-primary font-medium hover:underline">
+                  {t("dashboard_view_all")}
+                </a>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {nearbyFoods.map((food, index) => (

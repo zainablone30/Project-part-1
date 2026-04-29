@@ -2,8 +2,11 @@
 
 import { useState } from "react"
 import { motion, AnimatePresence } from "motion/react"
+import Link from "next/link"
 import { Search, MapPin, Bell, ShoppingBag, Mic, X } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { LanguageToggle } from "@/components/language-toggle"
+import { useLanguage } from "@/components/language-provider"
 
 interface SearchHeaderProps {
   userName?: string
@@ -18,14 +21,15 @@ export function SearchHeader({
   cartCount = 0,
   notificationCount = 2,
 }: SearchHeaderProps) {
+  const { t } = useLanguage()
   const [searchQuery, setSearchQuery] = useState("")
   const [isSearchFocused, setIsSearchFocused] = useState(false)
 
   const greetings = [
-    `Kya khana hai aaj, ${userName}?`,
-    `Bhook lagi hai, ${userName}?`,
-    `Aaj kuch special, ${userName}?`,
-    `Mood kya hai, ${userName}?`,
+    t("search_greeting_1", { name: userName }),
+    t("search_greeting_2", { name: userName }),
+    t("search_greeting_3", { name: userName }),
+    t("search_greeting_4", { name: userName }),
   ]
 
   const greetingIndex =
@@ -35,12 +39,12 @@ export function SearchHeader({
   const greeting = greetings[greetingIndex]
 
   const quickSearches = [
-    "Biryani",
-    "Burger",
-    "Pizza",
-    "Nihari",
-    "Chai",
-    "Paratha",
+    t("quick_search_biryani"),
+    t("quick_search_burger"),
+    t("quick_search_pizza"),
+    t("quick_search_nihari"),
+    t("quick_search_chai"),
+    t("quick_search_paratha"),
   ]
 
   return (
@@ -58,25 +62,32 @@ export function SearchHeader({
 
         {/* Action Buttons */}
         <div className="flex items-center gap-2">
-          <div className="hidden sm:flex">
+          <div className="hidden sm:flex items-center gap-2">
             <ThemeToggle />
+            <LanguageToggle />
           </div>
-          <button className="relative p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors">
+          <Link
+            href="/dashboard/notifications"
+            className="relative p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+          >
             <Bell className="w-5 h-5 text-muted-foreground" />
             {notificationCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-red-500 text-white text-xs font-bold flex items-center justify-center">
                 {notificationCount}
               </span>
             )}
-          </button>
-          <button className="relative p-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+          </Link>
+          <Link
+            href="/dashboard/orders"
+            className="relative p-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+          >
             <ShoppingBag className="w-5 h-5" />
             {cartCount > 0 && (
               <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-accent text-white text-xs font-bold flex items-center justify-center">
                 {cartCount}
               </span>
             )}
-          </button>
+          </Link>
         </div>
       </div>
 
@@ -97,7 +108,7 @@ export function SearchHeader({
           <Search className="w-5 h-5 text-muted-foreground" />
           <input
             type="text"
-            placeholder="Search for biryani, burger, restaurants..."
+            placeholder={t("search_placeholder")}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
@@ -127,7 +138,7 @@ export function SearchHeader({
               className="absolute top-full left-0 right-0 mt-2 p-4 bg-card rounded-2xl border border-border/50 shadow-xl z-50"
             >
               <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">
-                Popular Searches
+                {t("search_popular")}
               </p>
               <div className="flex flex-wrap gap-2">
                 {quickSearches.map((item) => (
