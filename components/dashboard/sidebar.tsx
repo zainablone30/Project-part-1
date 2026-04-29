@@ -23,6 +23,7 @@ import {
 } from "lucide-react"
 import { cn } from "@/lib/utils"
 import { PinguChef } from "@/components/pingu-chef"
+import { supabase } from "@/lib/supabase"
 
 const mainNavItems = [
   { icon: Home, label: "Home", href: "/dashboard" },
@@ -48,11 +49,9 @@ export function DashboardSidebar() {
   const router = useRouter()
   const [isMobileOpen, setIsMobileOpen] = useState(false)
 
-  const handleLogout = () => {
-    try {
-      localStorage.removeItem("isLoggedIn")
-    } catch (e) {}
+  const handleLogout = async () => {
     setIsMobileOpen(false)
+    await supabase.auth.signOut()
     router.replace("/login")
   }
 
