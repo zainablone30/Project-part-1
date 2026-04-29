@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import PinguChatbot from "@/components/dashboard/pingu-chatbot"
 
 export const metadata: Metadata = {
   title: "Dashboard | DastarKhan AI",
@@ -10,5 +11,10 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode
 }) {
-  return <>{children}</>
+  return (
+    <>
+      {children}
+      <PinguChatbot />
+    </>
+  )
 }
