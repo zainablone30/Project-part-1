@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useCallback, useEffect, useRef, useState } from "react"
 import { useRouter } from "next/navigation"
 import { motion } from "motion/react"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
@@ -31,6 +31,31 @@ type FoodItem = {
   discount?: number
 }
 
+type LocationStatus = "idle" | "locating" | "ready" | "blocked" | "unsupported" | "error"
+
+const LOCATION_FALLBACK = "Gulberg III, Lahore"
+
+function formatCoordinates(latitude: number, longitude: number) {
+  return `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
+}
+
+async function getReadableLocation(latitude: number, longitude: number) {
+  const response = await fetch(
+    `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
+  )
+
+  if (!response.ok) {
+    throw new Error("Could not resolve address")
+  }
+
+  const data = await response.json()
+  const address = data.address || {}
+  const area = address.suburb || address.neighbourhood || address.quarter || address.road
+  const city = address.city || address.town || address.village || address.county
+
+  return [area, city].filter(Boolean).join(", ") || data.display_name || formatCoordinates(latitude, longitude)
+}
+
 function mapFood(f: any): FoodItem {
   return {
     id: f.id,
@@ -51,11 +76,68 @@ function mapFood(f: any): FoodItem {
 
 export default function DashboardPage() {
   const router = useRouter()
+  const { t } = useLanguage()
   const [hasActiveOrder, setHasActiveOrder] = useState(true)
   const [cartCount, setCartCount] = useState(2)
   const [loading, setLoading] = useState(true)
+  const [userName, setUserName] = useState("Foodie")
+  const [currentLocation, setCurrentLocation] = useState(LOCATION_FALLBACK)
+  const [locationStatus, setLocationStatus] = useState<LocationStatus>("idle")
   const [trendingFoods, setTrendingFoods] = useState<FoodItem[]>([])
   const [nearbyFoods, setNearbyFoods] = useState<FoodItem[]>([])
+  const locationWatchId = useRef<number | null>(null)
+
+  const detectCurrentLocation = useCallback(() => {
+    if (!("geolocation" in navigator)) {
+      setLocationStatus("unsupported")
+      setCurrentLocation("Location not supported")
+      return
+    }
+
+    setLocationStatus("locating")
+
+    if (locationWatchId.current !== null) {
+      navigator.geolocation.clearWatch(locationWatchId.current)
+    }
+
+    const watchId = navigator.geolocation.watchPosition(
+      async ({ coords }) => {
+        const coordinateLabel = formatCoordinates(coords.latitude, coords.longitude)
+        setCurrentLocation(coordinateLabel)
+
+        try {
+          const readableLocation = await getReadableLocation(coords.latitude, coords.longitude)
+          setCurrentLocation(readableLocation)
+          setLocationStatus("ready")
+        } catch {
+          setLocationStatus("ready")
+        }
+      },
+      (error) => {
+        if (error.code === error.PERMISSION_DENIED) {
+          setLocationStatus("blocked")
+          setCurrentLocation("Allow location access")
+          return
+        }
+
+        setLocationStatus("error")
+        setCurrentLocation(LOCATION_FALLBACK)
+      },
+      {
+        enableHighAccuracy: true,
+        maximumAge: 30_000,
+        timeout: 15_000,
+      },
+    )
+    locationWatchId.current = watchId
+
+    return () => {
+      navigator.geolocation.clearWatch(watchId)
+      if (locationWatchId.current === watchId) {
+        locationWatchId.current = null
+      }
+    }
+  }, [])
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
@@ -74,6 +156,11 @@ export default function DashboardPage() {
         })
     })
   }, [router])
+
+  useEffect(() => {
+    const stopWatchingLocation = detectCurrentLocation()
+    return () => stopWatchingLocation?.()
+  }, [detectCurrentLocation])
 
   useEffect(() => {
     async function fetchFoods() {
@@ -107,7 +194,9 @@ export default function DashboardPage() {
       <main className="lg:ml-72 min-h-screen">
         <SearchHeader
           userName={userName}
-          location="Gulberg III, Lahore"
+          location={currentLocation}
+          locationStatus={locationStatus}
+          onLocationClick={detectCurrentLocation}
           cartCount={cartCount}
           notificationCount={3}
         />

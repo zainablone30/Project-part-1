@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "motion/react"
+import type { TargetAndTransition } from "motion/react"
 
 const desiQuotes = [
   "Bhook lagi hai? Main hoon na! 🍛",
@@ -85,7 +86,7 @@ export function PinguChef({
     lg: "w-48 h-48",
   }
 
-  const getAnimation = () => {
+  const getAnimation = (): TargetAndTransition => {
     if (isWaiting) {
       switch (animationState) {
         case "cooking":

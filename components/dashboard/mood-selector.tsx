@@ -16,8 +16,13 @@ const moodMeta = [
   { emoji: "🔥", color: "from-red-500 to-orange-600" },
 ]
 
+type MoodOption = (typeof moodMeta)[number] & {
+  label: string
+  tip: string
+}
+
 interface MoodSelectorProps {
-  onMoodSelect?: (mood: typeof moods[0]) => void
+  onMoodSelect?: (mood: MoodOption) => void
 }
 
 export function MoodSelector({ onMoodSelect }: MoodSelectorProps) {
@@ -27,10 +32,10 @@ export function MoodSelector({ onMoodSelect }: MoodSelectorProps) {
     label: t(`mood_label_${index + 1}`),
     tip: t(`mood_tip_${index + 1}`),
   }))
-  const [selectedMood, setSelectedMood] = useState<typeof moods[0] | null>(null)
+  const [selectedMood, setSelectedMood] = useState<MoodOption | null>(null)
   const [isExpanded, setIsExpanded] = useState(false)
 
-  const handleMoodSelect = (mood: typeof moods[0]) => {
+  const handleMoodSelect = (mood: MoodOption) => {
     setSelectedMood(mood)
     onMoodSelect?.(mood)
     setIsExpanded(false)

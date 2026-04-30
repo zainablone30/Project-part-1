@@ -11,6 +11,8 @@ import { useLanguage } from "@/components/language-provider"
 interface SearchHeaderProps {
   userName?: string
   location?: string
+  locationStatus?: "idle" | "locating" | "ready" | "blocked" | "unsupported" | "error"
+  onLocationClick?: () => void
   cartCount?: number
   notificationCount?: number
 }
@@ -18,6 +20,8 @@ interface SearchHeaderProps {
 export function SearchHeader({
   userName = "Foodie",
   location = "Gulberg, Lahore",
+  locationStatus = "idle",
+  onLocationClick,
   cartCount = 0,
   notificationCount = 2,
 }: SearchHeaderProps) {
@@ -47,15 +51,26 @@ export function SearchHeader({
     t("quick_search_paratha"),
   ]
 
+  const locationLabel = locationStatus === "locating" ? "Detecting location..." : location
+  const locationTitle =
+    locationStatus === "blocked"
+      ? "Location permission is blocked. Enable it in your browser settings, then try again."
+      : "Use your current location"
+
   return (
     <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/50 px-6 py-4">
       <div className="flex items-center justify-between gap-4 mb-4">
         {/* Location & Greeting */}
         <div>
-          <button className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors">
+          <button
+            type="button"
+            onClick={onLocationClick}
+            title={locationTitle}
+            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+          >
             <MapPin className="w-4 h-4 text-primary" />
-            <span>{location}</span>
-            <span className="text-xs">▼</span>
+            <span>{locationLabel}</span>
+            <span className="text-xs">v</span>
           </button>
           <h2 className="text-xl font-bold text-foreground mt-1">{greeting}</h2>
         </div>
