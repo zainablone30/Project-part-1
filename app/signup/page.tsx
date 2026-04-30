@@ -65,7 +65,7 @@ export default function SignupPage() {
       return
     }
 
-    router.replace("/dashboard")
+    router.replace("/dashboard/profile/setup")
   }
 
   const handleGoogleSignup = async () => {
@@ -73,7 +73,7 @@ export default function SignupPage() {
     setError("")
     const { error } = await supabase.auth.signInWithOAuth({
       provider: "google",
-      options: { redirectTo: `${window.location.origin}/dashboard` },
+      options: { redirectTo: `${window.location.origin}/dashboard/profile/setup` },
     })
     if (error) {
       setError(error.message)

@@ -24,6 +24,8 @@ type FoodItem = {
   aiRecommended?: boolean
   discount?: number
   category: string
+  description?: string
+  allergens?: string[]
 }
 
 function mapFood(f: any): FoodItem {
@@ -42,6 +44,8 @@ function mapFood(f: any): FoodItem {
     aiRecommended: f.is_ai_recommended,
     discount: f.discount || undefined,
     category: f.category || "Other",
+    description: f.description || undefined,
+    allergens: f.allergens || undefined,
   }
 }
 

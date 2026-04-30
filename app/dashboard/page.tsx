@@ -14,6 +14,8 @@ import { FoodCard } from "@/components/dashboard/food-card"
 import { OrderTracker } from "@/components/dashboard/order-tracker"
 import { PinguChef } from "@/components/pingu-chef"
 import { useLanguage } from "@/components/language-provider"
+import { useUserProfile } from "@/lib/user-profile-context"
+import Link from "next/link"
 
 type FoodItem = {
   id: string
@@ -29,6 +31,9 @@ type FoodItem = {
   isHomemade?: boolean
   aiRecommended?: boolean
   discount?: number
+  category?: string
+  description?: string
+  allergens?: string[]
 }
 
 type LocationStatus = "idle" | "locating" | "ready" | "blocked" | "unsupported" | "error"
@@ -65,12 +70,17 @@ function mapFood(f: any): FoodItem {
     isHomemade: f.is_homemade,
     aiRecommended: f.is_ai_recommended,
     discount: f.discount || undefined,
+    category: f.category || undefined,
+    description: f.description || undefined,
+    allergens: f.allergens || undefined,
   }
 }
 
 export default function DashboardPage() {
   const router = useRouter()
   const { t } = useLanguage()
+  const userProfile = useUserProfile()
+  const [profileBannerDismissed, setProfileBannerDismissed] = useState(false)
   const [hasActiveOrder, setHasActiveOrder] = useState(true)
   const [cartCount, setCartCount] = useState(2)
   const [loading, setLoading] = useState(true)
@@ -211,6 +221,41 @@ export default function DashboardPage() {
               </p>
             </div>
           </motion.div>
+
+          {/* Profile Completion Banner */}
+          {userProfile.loaded && !userProfile.isProfileComplete && !profileBannerDismissed && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200 dark:border-amber-800"
+            >
+              <div className="flex items-center gap-3">
+                <span className="text-2xl">🐧</span>
+                <div>
+                  <p className="text-sm font-semibold text-amber-800 dark:text-amber-200">
+                    Profile complete karo!
+                  </p>
+                  <p className="text-xs text-amber-600 dark:text-amber-400">
+                    Health conditions aur allergies add karo — Pingu food safety warnings dikhayega
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <Link
+                  href="/dashboard/profile/setup"
+                  className="px-3 py-1.5 rounded-xl bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600 transition-colors"
+                >
+                  Complete
+                </Link>
+                <button
+                  onClick={() => setProfileBannerDismissed(true)}
+                  className="p-1.5 rounded-lg text-amber-500 hover:bg-amber-100 dark:hover:bg-amber-900 transition-colors text-lg leading-none"
+                >
+                  ×
+                </button>
+              </div>
+            </motion.div>
+          )}
 
           <PromoBanner />
           <MoodSelector />
