@@ -1,8 +1,8 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { Suspense, useState, useEffect } from "react"
 import { motion } from "motion/react"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { DashboardSidebar } from "@/components/dashboard/sidebar"
 import { FoodCard } from "@/components/dashboard/food-card"
 import { PinguChef } from "@/components/pingu-chef"
@@ -52,14 +52,15 @@ const sortOptions = [
   { label: "Price: High to Low", value: "price_desc" },
 ]
 
-export default function ExplorePage() {
+function ExplorePageInner() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [allFoods, setAllFoods] = useState<FoodItem[]>([])
   const [categories, setCategories] = useState<{ name: string; emoji: string }[]>([
     { name: "All", emoji: "🍽️" },
   ])
   const [loading, setLoading] = useState(true)
-  const [searchQuery, setSearchQuery] = useState("")
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || "")
   const [selectedCategory, setSelectedCategory] = useState("All")
   const [sortBy, setSortBy] = useState("recommended")
   const [showFilters, setShowFilters] = useState(false)
@@ -98,7 +99,8 @@ export default function ExplorePage() {
     .filter((food) => {
       const matchesSearch =
         food.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        food.restaurant.toLowerCase().includes(searchQuery.toLowerCase())
+        food.restaurant.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        food.category.toLowerCase().includes(searchQuery.toLowerCase())
       const matchesCategory = selectedCategory === "All" || food.category === selectedCategory
       const matchesFilters =
         (!filters.veg || food.isVeg) &&
@@ -245,5 +247,13 @@ export default function ExplorePage() {
         )}
       </main>
     </div>
+  )
+}
+
+export default function ExplorePage() {
+  return (
+    <Suspense>
+      <ExplorePageInner />
+    </Suspense>
   )
 }

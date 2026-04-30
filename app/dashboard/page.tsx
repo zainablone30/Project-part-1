@@ -33,12 +33,6 @@ type FoodItem = {
 
 type LocationStatus = "idle" | "locating" | "ready" | "blocked" | "unsupported" | "error"
 
-const LOCATION_FALLBACK = "Gulberg III, Lahore"
-
-function formatCoordinates(latitude: number, longitude: number) {
-  return `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`
-}
-
 async function getReadableLocation(latitude: number, longitude: number) {
   const response = await fetch(
     `https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${latitude}&lon=${longitude}`,
@@ -53,7 +47,7 @@ async function getReadableLocation(latitude: number, longitude: number) {
   const area = address.suburb || address.neighbourhood || address.quarter || address.road
   const city = address.city || address.town || address.village || address.county
 
-  return [area, city].filter(Boolean).join(", ") || data.display_name || formatCoordinates(latitude, longitude)
+  return [area, city].filter(Boolean).join(", ") || data.display_name || "Current location"
 }
 
 function mapFood(f: any): FoodItem {
@@ -81,7 +75,7 @@ export default function DashboardPage() {
   const [cartCount, setCartCount] = useState(2)
   const [loading, setLoading] = useState(true)
   const [userName, setUserName] = useState("Foodie")
-  const [currentLocation, setCurrentLocation] = useState(LOCATION_FALLBACK)
+  const [currentLocation, setCurrentLocation] = useState("")
   const [locationStatus, setLocationStatus] = useState<LocationStatus>("idle")
   const [trendingFoods, setTrendingFoods] = useState<FoodItem[]>([])
   const [nearbyFoods, setNearbyFoods] = useState<FoodItem[]>([])
@@ -95,6 +89,7 @@ export default function DashboardPage() {
     }
 
     setLocationStatus("locating")
+    setCurrentLocation("")
 
     if (locationWatchId.current !== null) {
       navigator.geolocation.clearWatch(locationWatchId.current)
@@ -102,15 +97,13 @@ export default function DashboardPage() {
 
     const watchId = navigator.geolocation.watchPosition(
       async ({ coords }) => {
-        const coordinateLabel = formatCoordinates(coords.latitude, coords.longitude)
-        setCurrentLocation(coordinateLabel)
-
         try {
           const readableLocation = await getReadableLocation(coords.latitude, coords.longitude)
           setCurrentLocation(readableLocation)
           setLocationStatus("ready")
         } catch {
-          setLocationStatus("ready")
+          setLocationStatus("error")
+          setCurrentLocation("Location name unavailable")
         }
       },
       (error) => {
@@ -121,7 +114,7 @@ export default function DashboardPage() {
         }
 
         setLocationStatus("error")
-        setCurrentLocation(LOCATION_FALLBACK)
+        setCurrentLocation("Location unavailable")
       },
       {
         enableHighAccuracy: true,

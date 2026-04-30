@@ -7,6 +7,7 @@ import { Search, MapPin, Bell, ShoppingBag, Mic, X } from "lucide-react"
 import { ThemeToggle } from "@/components/theme-toggle"
 import { LanguageToggle } from "@/components/language-toggle"
 import { useLanguage } from "@/components/language-provider"
+import { Spinner } from "@/components/ui/spinner"
 
 interface SearchHeaderProps {
   userName?: string
@@ -19,7 +20,7 @@ interface SearchHeaderProps {
 
 export function SearchHeader({
   userName = "Foodie",
-  location = "Gulberg, Lahore",
+  location = "",
   locationStatus = "idle",
   onLocationClick,
   cartCount = 0,
@@ -51,7 +52,8 @@ export function SearchHeader({
     t("quick_search_paratha"),
   ]
 
-  const locationLabel = locationStatus === "locating" ? "Detecting location..." : location
+  const isLocating = locationStatus === "locating"
+  const locationLabel = location || "Detect location"
   const locationTitle =
     locationStatus === "blocked"
       ? "Location permission is blocked. Enable it in your browser settings, then try again."
@@ -68,9 +70,13 @@ export function SearchHeader({
             title={locationTitle}
             className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
-            <MapPin className="w-4 h-4 text-primary" />
-            <span>{locationLabel}</span>
-            <span className="text-xs">v</span>
+            {isLocating ? (
+              <Spinner className="w-4 h-4 text-primary" />
+            ) : (
+              <MapPin className="w-4 h-4 text-primary" />
+            )}
+            <span>{isLocating ? "Detecting location..." : locationLabel}</span>
+            {!isLocating && <span className="text-xs">v</span>}
           </button>
           <h2 className="text-xl font-bold text-foreground mt-1">{greeting}</h2>
         </div>
