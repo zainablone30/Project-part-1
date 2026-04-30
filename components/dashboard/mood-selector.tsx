@@ -114,9 +114,9 @@ export function MoodSelector({ onMoodSelect }: MoodSelectorProps) {
   }
 
   return (
-    <div className="bg-card rounded-3xl p-6 border border-border/50 shadow-lg">
-      <div className="flex items-center justify-between mb-4">
-        <div>
+    <div className="rounded-3xl border border-border/50 bg-card p-4 shadow-lg sm:p-6">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h3 className="text-lg font-bold text-foreground flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-primary" />
             {t("dashboard_mood_title")}
@@ -134,7 +134,7 @@ export function MoodSelector({ onMoodSelect }: MoodSelectorProps) {
         )}
       </div>
 
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {moods.map((mood, index) => (
           <motion.button
             key={mood.label}

@@ -60,36 +60,36 @@ export function SearchHeader({
       : "Use your current location"
 
   return (
-    <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/50 px-6 py-4">
-      <div className="flex items-center justify-between gap-4 mb-4">
+    <div className="sticky top-14 z-30 border-b border-border/50 bg-background/85 px-4 py-3 backdrop-blur-xl sm:px-6 sm:py-4 lg:top-0">
+      <div className="mb-3 flex items-center justify-between gap-3 sm:mb-4 sm:gap-4">
         {/* Location & Greeting */}
-        <div>
+        <div className="min-w-0">
           <button
             type="button"
             onClick={onLocationClick}
             title={locationTitle}
-            className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors"
+            className="flex max-w-[58vw] items-center gap-2 text-sm text-muted-foreground transition-colors hover:text-foreground sm:max-w-none"
           >
             {isLocating ? (
               <Spinner className="w-4 h-4 text-primary" />
             ) : (
               <MapPin className="w-4 h-4 text-primary" />
             )}
-            <span>{isLocating ? "Detecting location..." : locationLabel}</span>
+            <span className="truncate">{isLocating ? "Detecting location..." : locationLabel}</span>
             {!isLocating && <span className="text-xs">v</span>}
           </button>
-          <h2 className="text-xl font-bold text-foreground mt-1">{greeting}</h2>
+          <h2 className="mt-1 truncate text-lg font-bold text-foreground sm:text-xl">{greeting}</h2>
         </div>
 
         {/* Action Buttons */}
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           <div className="hidden sm:flex items-center gap-2">
             <ThemeToggle />
             <LanguageToggle />
           </div>
           <Link
             href="/dashboard/notifications"
-            className="relative p-3 rounded-xl bg-muted hover:bg-muted/80 transition-colors"
+            className="relative hidden rounded-xl bg-muted p-3 transition-colors hover:bg-muted/80 sm:block"
           >
             <Bell className="w-5 h-5 text-muted-foreground" />
             {notificationCount > 0 && (
@@ -100,7 +100,7 @@ export function SearchHeader({
           </Link>
           <Link
             href="/dashboard/orders"
-            className="relative p-3 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+            className="relative rounded-xl bg-primary p-3 text-primary-foreground transition-colors hover:bg-primary/90"
           >
             <ShoppingBag className="w-5 h-5" />
             {cartCount > 0 && (
@@ -120,7 +120,7 @@ export function SearchHeader({
               ? "0 10px 40px -10px rgba(255, 107, 53, 0.3)"
               : "none",
           }}
-          className={`relative flex items-center gap-3 px-4 py-3 rounded-2xl border-2 transition-colors ${
+          className={`relative flex items-center gap-2 rounded-2xl border-2 px-3 py-3 transition-colors sm:gap-3 sm:px-4 ${
             isSearchFocused
               ? "border-primary bg-card"
               : "border-transparent bg-muted"
@@ -134,7 +134,7 @@ export function SearchHeader({
             onChange={(e) => setSearchQuery(e.target.value)}
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-            className="flex-1 bg-transparent outline-none text-foreground placeholder:text-muted-foreground"
+            className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground sm:text-base"
           />
           {searchQuery && (
             <button

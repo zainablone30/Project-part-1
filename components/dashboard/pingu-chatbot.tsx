@@ -396,7 +396,7 @@ export default function PinguChatbot() {
             animate={{ opacity: 1, y: 0,  scale: 1 }}
             exit={{    opacity: 0, y: 24, scale: 0.94 }}
             transition={{ type: "spring", stiffness: 280, damping: 26 }}
-            className="fixed bottom-4 right-4 z-50 w-[22rem] max-w-[calc(100vw-2rem)] overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-2xl"
+            className="fixed inset-x-3 bottom-3 z-50 max-h-[calc(100dvh-5rem)] overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-2xl sm:inset-x-auto sm:right-4 sm:w-[22rem]"
           >
             {/* Header */}
             <div className="flex items-center justify-between bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 text-white">
@@ -419,7 +419,7 @@ export default function PinguChatbot() {
             </div>
 
             {/* Messages */}
-            <div className="max-h-96 space-y-3 overflow-y-auto bg-orange-50/40 p-3">
+            <div className="max-h-[55dvh] space-y-3 overflow-y-auto bg-orange-50/40 p-3 sm:max-h-96">
               {messages.map((m, i) => (
                 <div
                   key={i}
@@ -472,7 +472,7 @@ export default function PinguChatbot() {
         {!open && (
           <motion.div
             key="pingu-companion"
-            className="fixed bottom-4 right-0 z-50 h-28 w-28 cursor-pointer"
+            className="fixed bottom-3 right-0 z-50 h-24 w-24 cursor-pointer sm:bottom-4 sm:h-28 sm:w-28"
             initial={{ x: X_BY_PHASE.idle }}
             animate={{ x: X_BY_PHASE[phase] }}
             transition={TRANSITION_BY_PHASE[phase]}

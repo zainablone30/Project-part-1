@@ -62,7 +62,7 @@ export default function CuisineGPSPage() {
           </div>
 
           {/* Cuisine Buttons */}
-          <div className="grid grid-cols-4 gap-3 mb-6">
+          <div className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
             {cuisines.map((c) => (
               <button
                 key={c.name}

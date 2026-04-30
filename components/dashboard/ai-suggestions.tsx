@@ -53,7 +53,7 @@ export function AISuggestions() {
   const currentMode = aiModes.find((m) => m.id === selectedMode)
 
   return (
-    <div className="bg-card rounded-3xl p-6 border border-border/50 shadow-lg">
+    <div className="rounded-3xl border border-border/50 bg-card p-4 shadow-lg sm:p-6">
       <div className="flex items-center gap-3 mb-6">
         <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
           <Sparkles className="w-6 h-6 text-white" />
@@ -65,7 +65,7 @@ export function AISuggestions() {
       </div>
 
       {/* AI Mode Cards */}
-      <div className="grid grid-cols-2 gap-3 mb-4">
+      <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {aiModes.map((mode, index) => {
           const Icon = mode.icon
           const isSelected = selectedMode === mode.id

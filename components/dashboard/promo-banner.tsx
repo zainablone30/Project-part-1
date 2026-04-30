@@ -91,7 +91,7 @@ export function PromoBanner() {
           animate="center"
           exit="exit"
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
-          className={`relative p-6 bg-gradient-to-r ${currentPromo.gradient} text-white min-h-[200px]`}
+          className={`relative min-h-[220px] bg-gradient-to-r ${currentPromo.gradient} p-4 text-white sm:min-h-[200px] sm:p-6`}
         >
           <div className="flex items-center justify-between">
             <div className="flex-1">
@@ -100,15 +100,15 @@ export function PromoBanner() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.1 }}
               >
-                <span className="text-4xl mb-2 block">{currentPromo.emoji}</span>
-                <h3 className="text-2xl font-bold mb-1">{currentPromo.title}</h3>
-                <p className="text-lg font-medium opacity-90 mb-2">{currentPromo.subtitle}</p>
-                <p className="text-sm opacity-80 mb-4">{currentPromo.description}</p>
-                <div className="flex items-center gap-3">
-                  <span className="px-4 py-2 rounded-full bg-white/20 backdrop-blur-sm font-mono font-bold text-sm">
+                <span className="mb-2 block text-3xl sm:text-4xl">{currentPromo.emoji}</span>
+                <h3 className="mb-1 text-xl font-bold leading-tight sm:text-2xl">{currentPromo.title}</h3>
+                <p className="mb-2 text-base font-medium opacity-90 sm:text-lg">{currentPromo.subtitle}</p>
+                <p className="mb-4 text-sm opacity-80">{currentPromo.description}</p>
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                  <span className="rounded-full bg-white/20 px-3 py-2 font-mono text-xs font-bold backdrop-blur-sm sm:px-4 sm:text-sm">
                     {currentPromo.code}
                   </span>
-                  <button className="px-4 py-2 rounded-full bg-white text-foreground font-semibold text-sm hover:bg-white/90 transition-colors">
+                  <button className="rounded-full bg-white px-3 py-2 text-xs font-semibold text-foreground transition-colors hover:bg-white/90 sm:px-4 sm:text-sm">
                     {t("promo_use")}
                   </button>
                 </div>

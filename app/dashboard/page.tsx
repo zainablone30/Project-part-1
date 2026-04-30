@@ -194,7 +194,7 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-background">
       <DashboardSidebar />
 
-      <main className="lg:ml-72 min-h-screen">
+      <main className="min-h-screen pt-16 lg:ml-72 lg:pt-0">
         <SearchHeader
           userName={userName}
           location={currentLocation}
@@ -204,7 +204,7 @@ export default function DashboardPage() {
           notificationCount={3}
         />
 
-        <div className="p-6 pt-4 lg:pt-6 space-y-6">
+        <div className="space-y-5 px-4 py-4 sm:px-6 lg:space-y-6 lg:pt-6">
           {/* Welcome Pingu */}
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
@@ -227,7 +227,7 @@ export default function DashboardPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/40 dark:to-orange-950/40 border border-amber-200 dark:border-amber-800"
+              className="flex flex-col gap-4 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4 dark:border-amber-800 dark:from-amber-950/40 dark:to-orange-950/40 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🐧</span>
@@ -240,7 +240,7 @@ export default function DashboardPage() {
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex shrink-0 items-center gap-2 self-end sm:self-auto">
                 <Link
                   href="/dashboard/profile/setup"
                   className="px-3 py-1.5 rounded-xl bg-amber-500 text-white text-xs font-semibold hover:bg-amber-600 transition-colors"
@@ -264,8 +264,8 @@ export default function DashboardPage() {
 
           {/* Trending Foods */}
           <section>
-            <div className="flex items-center justify-between mb-4">
-              <div>
+            <div className="mb-4 flex items-end justify-between gap-3">
+              <div className="min-w-0">
                 <h3 className="text-xl font-bold text-foreground">{t("dashboard_trending_title")}</h3>
                 <p className="text-sm text-muted-foreground">{t("dashboard_trending_desc")}</p>
               </div>
@@ -299,8 +299,8 @@ export default function DashboardPage() {
           {/* Nearby Section */}
           {nearbyFoods.length > 0 && (
             <section>
-              <div className="flex items-center justify-between mb-4">
-                <div>
+              <div className="mb-4 flex items-end justify-between gap-3">
+                <div className="min-w-0">
                   <h3 className="text-xl font-bold text-foreground">{t("dashboard_nearby_title")}</h3>
                   <p className="text-sm text-muted-foreground">{t("dashboard_nearby_desc")}</p>
                 </div>
@@ -323,17 +323,6 @@ export default function DashboardPage() {
             </section>
           )}
 
-          {/* Pingu Floating Widget - mobile only */}
-          <motion.div
-            className="fixed bottom-6 right-6 z-40 lg:hidden"
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1 }}
-          >
-            <motion.button whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.9 }} className="relative">
-              <PinguChef size="sm" showQuote={true} mood="happy" />
-            </motion.button>
-          </motion.div>
         </div>
       </main>
     </div>

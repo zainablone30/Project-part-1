@@ -92,7 +92,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
               whileHover={{ scale: 1.03, boxShadow: "0 20px 50px rgba(217, 119, 6, 0.4)" }}
               whileTap={{ scale: 0.97 }}
               onClick={onGetStarted}
-              className="group px-8 py-4 bg-primary text-primary-foreground rounded-2xl text-lg font-semibold flex items-center gap-3 shadow-2xl shadow-primary/30 transition-all"
+              className="group flex w-full max-w-xs items-center justify-center gap-3 rounded-2xl bg-primary px-6 py-4 text-base font-semibold text-primary-foreground shadow-2xl shadow-primary/30 transition-all sm:w-auto sm:max-w-none sm:px-8 sm:text-lg"
             >
               <ShoppingBag className="w-5 h-5" />
               {t("hero_cta_primary")}
@@ -101,7 +101,7 @@ export function HeroSection({ onGetStarted }: HeroSectionProps) {
             <motion.button
               whileHover={{ scale: 1.03, backgroundColor: "rgba(255, 255, 255, 0.15)" }}
               whileTap={{ scale: 0.97 }}
-              className="px-8 py-4 bg-white/10 backdrop-blur-md text-white rounded-2xl text-lg font-semibold border border-white/20 flex items-center gap-3 transition-all"
+              className="flex w-full max-w-xs items-center justify-center gap-3 rounded-2xl border border-white/20 bg-white/10 px-6 py-4 text-base font-semibold text-white backdrop-blur-md transition-all sm:w-auto sm:max-w-none sm:px-8 sm:text-lg"
             >
               <Utensils className="w-5 h-5" />
               {t("hero_cta_secondary")}
