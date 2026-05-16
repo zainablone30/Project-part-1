@@ -12,7 +12,6 @@ import { PromoBanner } from "@/components/dashboard/promo-banner"
 import { AISuggestions } from "@/components/dashboard/ai-suggestions"
 import { FoodCard } from "@/components/dashboard/food-card"
 import { OrderTracker } from "@/components/dashboard/order-tracker"
-import { PinguChef } from "@/components/pingu-chef"
 import { useLanguage } from "@/components/language-provider"
 import { useUserProfile } from "@/lib/user-profile-context"
 import Link from "next/link"
@@ -209,15 +208,25 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-4 p-4 rounded-3xl bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20"
+            className="flex items-center gap-4 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 to-accent/10 p-4"
           >
-            <PinguChef size="sm" showQuote={false} mood="happy" />
-            <div>
-              <p className="font-bold text-foreground">
+            <div className="flex h-16 w-16 shrink-0 items-end justify-center overflow-hidden rounded-2xl bg-white/70 shadow-sm ring-1 ring-primary/10 dark:bg-white/10 sm:h-20 sm:w-20 lg:h-24 lg:w-24">
+              <video
+                src="/videos/waving.webm"
+                className="h-full w-full object-contain"
+                autoPlay
+                loop
+                muted
+                playsInline
+                aria-label="Pingu waving hello"
+              />
+            </div>
+            <div className="min-w-0">
+              <p className="text-base font-bold text-foreground sm:text-lg">
                 {t("dashboard_greeting")}, {userName}! 👋
               </p>
-              <p className="text-sm text-muted-foreground">
-                {t("dashboard_subtitle")}
+              <p className="text-sm leading-relaxed text-muted-foreground">
+                Pingu is ready to help you find something delicious today.
               </p>
             </div>
           </motion.div>

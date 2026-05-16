@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { Navbar } from "@/components/navbar"
 import { HeroSection } from "@/components/hero-section"
 import { FeaturesSection } from "@/components/features-section"
@@ -8,20 +8,16 @@ import { HowItWorksSection } from "@/components/how-it-works-section"
 import { AIFeaturesSection } from "@/components/ai-features-section"
 import { ChefSection } from "@/components/chef-section"
 import { Footer } from "@/components/footer"
-import { AuthModal } from "@/components/auth-modal"
 
 export default function HomePage() {
-  const [isAuthOpen, setIsAuthOpen] = useState(false)
-  const [authMode, setAuthMode] = useState<"login" | "signup">("login")
+  const router = useRouter()
 
   const handleLoginClick = () => {
-    setAuthMode("login")
-    setIsAuthOpen(true)
+    router.push("/login")
   }
 
   const handleSignupClick = () => {
-    setAuthMode("signup")
-    setIsAuthOpen(true)
+    router.push("/signup")
   }
 
   return (
@@ -33,11 +29,6 @@ export default function HomePage() {
       <AIFeaturesSection />
       <ChefSection />
       <Footer />
-      <AuthModal
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        initialMode={authMode}
-      />
     </main>
   )
 }
