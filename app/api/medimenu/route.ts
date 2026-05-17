@@ -4,6 +4,7 @@ import { createServerSupabase } from "@/lib/supabase"
 type FoodRow = {
   id: number | string
   name: string
+  image_url?: string | null
   category?: string | null
   price?: number | null
   rating?: number | null
@@ -44,6 +45,10 @@ const proteinRegex = /chicken|beef|mutton|egg|protein|daal|lentil|kebab|tikka|gr
 const lightRegex = /soup|khichdi|daal|broth|yogurt|fruit|salad|grilled|boiled/i
 const chaiRegex = /chai|paratha|omelet|omelette|samosa|roll|breakfast|nashta|snack|bun|biscuit/i
 const carbRegex = /rice|biryani|pulao|bread|paratha|naan|pasta|dessert|sweet|roll|burger|pizza/i
+// Dishes that are inherently high-fat, high-sodium, or nutritionally poor — penalized by default
+const unhealthyRegex = /nihari|paye|siri paye|maghaz|bheja|trotters|halwa puri|deep.?fried|puri/i
+// Dishes that are inherently nutritious and light — rewarded by default
+const nutritiousRegex = /salad|soup|grilled|boiled|steamed|yogurt|daal|sabzi|khichdi|fruit|raita/i
 
 function getRestaurant(food: FoodRow) {
   return Array.isArray(food.restaurants) ? food.restaurants[0] : food.restaurants
@@ -76,6 +81,10 @@ function scoreFood(food: FoodRow, context: SelectionContext) {
 
   if (food.is_ai_recommended) score += 1.5
   if (typeof food.rating === "number") score += Math.min(5, food.rating) / 2
+
+  // Base nutritional intelligence — always applied regardless of health conditions
+  if (unhealthyRegex.test(text)) score -= 2.5
+  if (nutritiousRegex.test(text)) score += 1.5
 
   if (mood.includes("sick")) {
     if (!food.is_spicy) score += 2
@@ -116,12 +125,13 @@ function scoreFood(food: FoodRow, context: SelectionContext) {
     }
     if (label.includes("hypertension")) {
       if (food.is_spicy) score -= 2
-      if (/fried|karahi|nihari|bbq/i.test(text)) score -= 1
+      if (/fried|karahi|nihari|paye|bbq|siri/i.test(text)) score -= 3
       if (!food.is_spicy) score += 1
     }
     if (label.includes("gastro") || label.includes("post") || label.includes("pregnancy") || label.includes("fever")) {
-      if (food.is_spicy) score -= 2
-      if (lightRegex.test(text)) score += 1.5
+      if (food.is_spicy) score -= 3
+      if (/nihari|paye|siri|maghaz|bheja|fried/i.test(text)) score -= 3
+      if (lightRegex.test(text)) score += 2
     }
   }
 
@@ -179,6 +189,19 @@ function rankMenu(menu: FoodRow[], context: SelectionContext) {
     if (ratingDiff !== 0) return ratingDiff
     return String(a.name).localeCompare(String(b.name))
   })
+}
+
+// Takes top scored items + random extras so the AI sees variety across requests
+function selectDiverseCandidates(menu: FoodRow[], context: SelectionContext, total = 20): FoodRow[] {
+  const ranked = rankMenu(menu, context)
+  const topCount = Math.min(12, ranked.length)
+  const top = ranked.slice(0, topCount)
+  const rest = ranked.slice(topCount)
+  // Shuffle the lower-ranked items and pick enough to reach total
+  const shuffled = [...rest].sort(() => Math.random() - 0.5)
+  const extras = shuffled.slice(0, total - top.length)
+  // Lightly shuffle the combined list so AI doesn't see a pure ranking order
+  return [...top, ...extras].sort(() => Math.random() - 0.35)
 }
 
 function normalizeList(value: unknown): string[] {
@@ -315,6 +338,29 @@ async function repairJsonArray(rawText: string) {
   return data.candidates?.[0]?.content?.parts?.[0]?.text || null
 }
 
+function buildSuitabilityHints(food: FoodRow): string {
+  const text = foodText(food)
+  const hints: string[] = []
+
+  if (!food.is_spicy && lightRegex.test(text)) hints.push("fever-safe", "gastro-safe")
+  if (!food.is_spicy && proteinRegex.test(text)) hints.push("post-surgery-safe")
+  if (food.is_veg && !food.is_spicy) hints.push("pregnancy-safe")
+  if (!food.is_spicy && !/fried|karahi|nihari|paye/i.test(text)) hints.push("hypertension-safe")
+  if (!/dessert|sweet|kheer|halwa|gulab|rabri|falooda|sugar/i.test(text)) hints.push("diabetes-safe")
+  if (food.is_veg) hints.push("vegetarian")
+  if (nutritiousRegex.test(text)) hints.push("light-nutritious")
+  if (proteinRegex.test(text)) hints.push("high-protein")
+  if (/biryani|karahi|bbq|burger|roll|pulao/i.test(text)) hints.push("hungry-mood")
+  if (/soup|khichdi|daal|broth/i.test(text)) hints.push("sick-mood", "comfort-mood")
+  if (/chai|paratha|samosa|snack|nashta/i.test(text)) hints.push("chai-time-mood")
+  if (/kebab|tikka|karahi|spicy/i.test(text) && food.is_spicy) hints.push("spicy-mood")
+  if (/sandwich|burger|roll|wrap|pizza/i.test(text)) hints.push("late-night-mood")
+  if ((food.rating ?? 0) >= 4.5) hints.push("celebration-mood")
+  if (food.is_homemade) hints.push("comfort-mood")
+
+  return hints.length ? hints.join(", ") : "general"
+}
+
 function buildMenuLine(food: FoodRow) {
   const restaurant = getRestaurant(food)
   const tags = [
@@ -335,6 +381,7 @@ function buildMenuLine(food: FoodRow) {
     `Area: ${restaurant?.area || "Lahore"}`,
     `Tags: ${tags}`,
     `Allergens: ${(food.allergens || []).join(", ") || "none"}`,
+    `Suitable-for: ${buildSuitabilityHints(food)}`,
   ].join(" | ")
 }
 
@@ -348,6 +395,7 @@ function normalizePick(raw: AiPick, menuById: Map<string, FoodRow>) {
   return {
     id: String(menuItem.id),
     name: menuItem.name,
+    image: menuItem.image_url || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500",
     restaurant: restaurant?.name || "Dastarkhan",
     area: restaurant?.area || "Lahore",
     description: menuItem.description || "",
@@ -399,6 +447,7 @@ function buildFallback(menu: FoodRow[], context: SelectionContext) {
     return {
       id: String(food.id),
       name: food.name,
+      image: food.image_url || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500",
       restaurant: restaurant?.name || "Dastarkhan",
       area: restaurant?.area || "Lahore",
       description: food.description || "",
@@ -435,6 +484,7 @@ export async function POST(req: NextRequest) {
     .select(`
       id,
       name,
+      image_url,
       category,
       price,
       rating,
@@ -447,9 +497,8 @@ export async function POST(req: NextRequest) {
       allergens,
       restaurants(name, area)
     `)
-    .order("is_ai_recommended", { ascending: false })
     .order("rating", { ascending: false })
-    .limit(30)
+    .limit(60)
 
   if (error) {
     console.error("MediMenu foods error:", error.message)
@@ -468,36 +517,42 @@ export async function POST(req: NextRequest) {
     })
   }
 
-  const candidateMenu = rankMenu(menu, context).slice(0, 18)
+  const candidateMenu = selectDiverseCandidates(menu, context, 20)
   const menuContext = candidateMenu.map(buildMenuLine).join("\n")
-  const systemPrompt = `You are MediMenu AI for Dastarkhan, a Pakistani food app.
+  const systemPrompt = `You are MediMenu AI for Dastarkhan, a Pakistani food app focused on health-conscious recommendations.
 
-You must recommend dishes ONLY from the live Supabase menu provided. Never invent dishes or restaurants.`
+You must recommend dishes ONLY from the live Supabase menu provided. Never invent dishes or restaurants.
 
-  const userPrompt = `User preferences:
-Mood: ${mood || "not specified"}
-Health conditions: ${health.join(", ") || "none"}
-Diet preferences: ${diet.join(", ") || "none"}
-Notes: ${notes || "none"}
+NUTRITIONAL INTELLIGENCE — follow these rules strictly:
+- Always prioritize balanced, nutritious meals over heavy or indulgent ones.
+- Nihari, Paye, Siri Paye, Maghaz, Bheja, and deep-fried items are high-fat, high-sodium dishes that are NOT healthy — do NOT recommend them unless the user explicitly asks for heavy or indulgent food.
+- Prefer grilled, boiled, lentil-based, vegetable-based, or yogurt-based dishes when possible.
+- When health conditions are provided (e.g. diabetes, hypertension, fever, gastro, pregnancy, post-surgery), strictly exclude any dish that would worsen those conditions.
+- Explain the health benefit or suitability in the "reason" field — users deserve to know WHY a dish is good for them.`
 
-Pick 4 to 6 dishes that best match. Return ONLY JSON array in this exact schema:
-[
-  {
-    "id": "menu id",
-    "reason": "short match reason",
-    "calories_kcal": 520,
-    "benefits": "short benefit line tied to mood/health/diet",
-    "ingredients": ["ingredient", "ingredient", "ingredient"]
-  }
-]
+  const conditionSummary = [
+    mood ? `Mood: ${mood}` : null,
+    health.length ? `Health conditions: ${health.join(", ")}` : null,
+    diet.length ? `Diet: ${diet.join(", ")}` : null,
+    notes ? `Notes: ${notes}` : null,
+  ].filter(Boolean).join(" | ")
 
-Rules:
-- Use only ids from the menu.
-- calories_kcal must be an integer estimate.
-- ingredients should be 4-8 common items; if unsure keep it short.
-- No extra text, no markdown.
+  const userPrompt = `USER CONTEXT: ${conditionSummary || "No specific preferences"}
 
-LIVE SUPABASE MENU:
+SELECTION RULES — apply every rule strictly:
+${mood ? `- MOOD (${mood}): Pick dishes that specifically match this mood. Use the "Suitable-for" field on each menu item to find mood matches.` : ""}
+${health.length ? `- HEALTH (${health.join(", ")}): Only pick dishes marked suitable for ALL of these conditions in their "Suitable-for" field. Reject any dish that could worsen any condition.` : ""}
+${diet.length ? `- DIET (${diet.join(", ")}): Strictly enforce diet constraints — no exceptions.` : ""}
+- Vary your picks: do NOT just pick the same few "always healthy" dishes. Choose from different categories, restaurants, and meal types.
+- Each dish must have a unique reason tied to the specific mood+health+diet combination above.
+- Nutritional rule: Avoid Nihari, Paye, Maghaz, Bheja, or deep-fried items unless user asks for indulgent food.
+
+Pick 4 to 6 dishes. Return ONLY a JSON array:
+[{"id": "menu id", "reason": "specific reason tied to mood/health/diet", "calories_kcal": 520, "benefits": "benefit tied to their conditions", "ingredients": ["item1", "item2"]}]
+
+Rules: only ids from the menu, calories_kcal integer, 4-8 ingredients, no extra text.
+
+LIVE MENU (use Suitable-for field to match conditions):
 ${menuContext}`
 
   const response = await fetch(
@@ -514,8 +569,8 @@ ${menuContext}`
           },
         ],
         generationConfig: {
-          temperature: 0.2,
-          maxOutputTokens: 500,
+          temperature: 0.6,
+          maxOutputTokens: 1024,
           response_mime_type: "application/json",
           response_schema: {
             type: "array",

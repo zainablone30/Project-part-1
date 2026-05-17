@@ -21,6 +21,7 @@ type FoodItem = {
   name: string
   nameUrdu?: string
   restaurant: string
+  restaurantArea?: string
   image: string
   price: number
   rating: number
@@ -60,6 +61,7 @@ function mapFood(f: any): FoodItem {
     name: f.name,
     nameUrdu: f.name_urdu || undefined,
     restaurant: f.restaurants?.name || "DastarKhan",
+    restaurantArea: f.restaurants?.area || "",
     image: f.image_url || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500",
     price: f.price,
     rating: Number(f.rating),
@@ -208,7 +210,7 @@ export default function DashboardPage() {
           <motion.div
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex items-center gap-4 overflow-hidden rounded-3xl border border-primary/20 bg-gradient-to-r from-primary/10 to-accent/10 p-4"
+            className="flex items-center gap-4 overflow-hidden rounded-3xl border border-primary/20 bg-linear-to-r from-primary/10 to-accent/10 p-4"
           >
             <div className="flex h-16 w-16 shrink-0 items-end justify-center overflow-hidden rounded-2xl bg-white/70 shadow-sm ring-1 ring-primary/10 dark:bg-white/10 sm:h-20 sm:w-20 lg:h-24 lg:w-24">
               <video
@@ -236,7 +238,7 @@ export default function DashboardPage() {
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
-              className="flex flex-col gap-4 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-orange-50 p-4 dark:border-amber-800 dark:from-amber-950/40 dark:to-orange-950/40 sm:flex-row sm:items-center sm:justify-between"
+              className="flex flex-col gap-4 rounded-2xl border border-amber-200 bg-linear-to-r from-amber-50 to-orange-50 p-4 dark:border-amber-800 dark:from-amber-950/40 dark:to-orange-950/40 sm:flex-row sm:items-center sm:justify-between"
             >
               <div className="flex items-center gap-3">
                 <span className="text-2xl">🐧</span>
@@ -298,7 +300,7 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <FoodCard {...food} onAddToCart={() => setCartCount((c) => c + 1)} />
+                    <FoodCard {...food} />
                   </motion.div>
                 ))}
               </div>
@@ -325,7 +327,7 @@ export default function DashboardPage() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
                   >
-                    <FoodCard {...food} onAddToCart={() => setCartCount((c) => c + 1)} />
+                    <FoodCard {...food} />
                   </motion.div>
                 ))}
               </div>

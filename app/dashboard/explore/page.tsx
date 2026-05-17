@@ -14,6 +14,7 @@ type FoodItem = {
   name: string
   nameUrdu?: string
   restaurant: string
+  restaurantArea?: string
   image: string
   price: number
   rating: number
@@ -34,6 +35,7 @@ function mapFood(f: any): FoodItem {
     name: f.name,
     nameUrdu: f.name_urdu || undefined,
     restaurant: f.restaurants?.name || "DastarKhan",
+    restaurantArea: f.restaurants?.area || "",
     image: f.image_url || "https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=500",
     price: f.price,
     rating: Number(f.rating),
