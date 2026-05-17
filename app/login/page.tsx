@@ -47,7 +47,15 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsLoading(true)
     setError("")
-    const redirectBase = process.env.NEXT_PUBLIC_SITE_URL || window.location.origin
+    const configuredBase = process.env.NEXT_PUBLIC_SITE_URL
+    if (configuredBase) {
+      const configuredOrigin = new URL(configuredBase).origin
+      if (configuredOrigin !== window.location.origin) {
+        window.location.assign(new URL("/login", configuredOrigin).toString())
+        return
+      }
+    }
+    const redirectBase = configuredBase || window.location.origin
     const redirectUrl = new URL("/auth/callback", redirectBase)
     redirectUrl.searchParams.set("next", "/dashboard")
     const { error } = await supabase.auth.signInWithOAuth({
