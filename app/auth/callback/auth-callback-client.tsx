@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { supabase } from "@/lib/supabase"
 
@@ -8,8 +8,12 @@ export function AuthCallbackClient() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [isRetrying, setIsRetrying] = useState(false)
+  const exchangeAttempted = useRef(false)
 
   useEffect(() => {
+    if (exchangeAttempted.current) return
+    exchangeAttempted.current = true
+
     const nextPath = searchParams.get("next") || "/dashboard"
     const code = searchParams.get("code")
 
