@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useRef } from "react"
+import { useState, useEffect, useRef, useCallback } from "react"
 import { motion, AnimatePresence } from "motion/react"
 
 type ChatMessage = { role: "user" | "assistant"; content: string }
@@ -136,6 +136,19 @@ const X_BY_PHASE: Record<Phase, number> = {
   happy:     0,   // click celebration
 }
 
+// Mobile: only a gentle peek from the right edge — never walks onto screen
+const X_BY_PHASE_MOBILE: Record<Phase, number> = {
+  idle:    76,  // almost fully hidden
+  peekIn:  38,  // shows ~58px of the 96px — just head peeking
+  walk:    38,  // same as peekIn on mobile (no walking)
+  walkFar: 38,
+  jump:    38,
+  spin:    38,
+  dance:   38,
+  runBack: 76,
+  happy:   38,
+}
+
 const TRANSITION_BY_PHASE: Record<Phase, object> = {
   idle:     { type: "spring", stiffness: 70,  damping: 14 },
   peekIn:   { type: "spring", stiffness: 130, damping: 18 },
@@ -220,9 +233,18 @@ export default function PinguChatbot() {
   const [showBubble, setShowBubble] = useState(false)
   const [bubbleText, setBubbleText] = useState("")
 
-  const isRunning  = useRef(false)
-  const cancelRef  = useRef(false)
+  const isRunning    = useRef(false)
+  const cancelRef    = useRef(false)
+  const isMobileRef  = useRef(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
+
+  // Track mobile breakpoint without causing re-renders in the animation loop
+  useEffect(() => {
+    const check = () => { isMobileRef.current = window.innerWidth < 640 }
+    check()
+    window.addEventListener("resize", check)
+    return () => window.removeEventListener("resize", check)
+  }, [])
 
   // Auto-scroll messages
   useEffect(() => {
@@ -331,14 +353,34 @@ export default function PinguChatbot() {
       setPhase("idle")
     }
 
-    const ROUTINES = [routineQuick, routineQuick, routineJump, routineDance, routineExplore]
+    // ── Routine: mobile-only subtle peek (no walking onto screen) ────────────
+    async function routineMobilePeek() {
+      setMood("waving")
+      setBubbleText(pick(QUOTES))
+      if (!await phase("peekIn", 500))  return
+      setShowBubble(true)
+      if (!await phase("peekIn", 1800)) return
+      setShowBubble(false)
+      setMood("idle")
+      if (!await phase("runBack", 350)) return
+      setPhase("idle")
+    }
+
+    const isMobile = isMobileRef.current
+    const ROUTINES = isMobile
+      ? [routineMobilePeek]
+      : [routineQuick, routineQuick, routineJump, routineDance, routineExplore]
 
     async function playSequence() {
       await go(pick(ROUTINES))
     }
 
-    const first    = setTimeout(playSequence, 2500)
-    const interval = setInterval(playSequence, 9500)
+    // Longer gaps on mobile so Pingu is less intrusive
+    const firstDelay    = isMobile ? 4000  : 2500
+    const repeatInterval = isMobile ? 18000 : 9500
+
+    const first    = setTimeout(playSequence, firstDelay)
+    const interval = setInterval(playSequence, repeatInterval)
 
     return () => {
       cancelRef.current = true
@@ -474,10 +516,10 @@ export default function PinguChatbot() {
             key="pingu-companion"
             className="fixed bottom-3 right-0 z-50 h-24 w-24 cursor-pointer sm:bottom-4 sm:h-28 sm:w-28"
             initial={{ x: X_BY_PHASE.idle }}
-            animate={{ x: X_BY_PHASE[phase] }}
+            animate={{ x: (isMobileRef.current ? X_BY_PHASE_MOBILE : X_BY_PHASE)[phase] }}
             transition={TRANSITION_BY_PHASE[phase]}
             exit={{ x: X_BY_PHASE.idle, opacity: 0, transition: { duration: 0.2 } }}
-            whileHover={phase === "idle" ? { x: 0, scale: 1.08 } : { scale: 1.05 }}
+            whileHover={phase === "idle" ? { x: isMobileRef.current ? X_BY_PHASE_MOBILE.peekIn : 0, scale: 1.08 } : { scale: 1.05 }}
             onClick={handleCharacterClick}
             aria-label="Open Pingu chatbot"
           >
