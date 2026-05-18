@@ -96,11 +96,12 @@ function sleep(ms: number) {
 // ─── X positions: negative = hidden behind left edge ─────────────────────────
 // The element sits at left-0; negative x slides it off-screen to the left.
 
+// positive = pushed right (off screen), peek shows the LEFT side of the character
 const X_BY_PHASE: Record<Phase, number> = {
-  idle:    -82,  // almost fully hidden — tiny sliver visible at left edge
-  peekIn:  -48,  // right half of character peeks out (head, eye, beak visible)
-  runBack: -82,  // retreat back behind the edge
-  happy:   -30,  // tap celebration — slides out a bit more
+  idle:    56,  // almost fully hidden behind right edge
+  peekIn:  26,  // left portion (head, eye, beak) peeking in from right
+  runBack: 56,  // retreat back
+  happy:   10,  // tap celebration — slides out more
 }
 
 const TRANSITION_BY_PHASE: Record<Phase, object> = {
@@ -247,7 +248,7 @@ export default function PinguChatbot() {
             animate={{ opacity: 1, y: 0,  scale: 1 }}
             exit={{    opacity: 0, y: 24, scale: 0.94 }}
             transition={{ type: "spring", stiffness: 280, damping: 26 }}
-            className="fixed inset-x-3 bottom-3 z-50 max-h-[calc(100dvh-5rem)] overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-2xl sm:inset-x-auto sm:left-4 sm:w-88"
+            className="fixed inset-x-3 bottom-3 z-50 max-h-[calc(100dvh-5rem)] overflow-hidden rounded-3xl border border-orange-100 bg-white shadow-2xl sm:inset-x-auto sm:right-4 sm:w-88"
           >
             {/* Header */}
             <div className="flex items-center justify-between bg-gradient-to-r from-orange-500 to-amber-500 px-4 py-3 text-white">
@@ -323,12 +324,12 @@ export default function PinguChatbot() {
         {!open && (
           <motion.div
             key="pingu-companion"
-            className="fixed bottom-3 left-0 z-50 h-24 w-24 cursor-pointer sm:bottom-4 sm:h-28 sm:w-28"
+            className="fixed bottom-3 right-0 z-50 h-16 w-16 cursor-pointer sm:bottom-4 sm:h-20 sm:w-20"
             initial={{ x: X_BY_PHASE.idle }}
             animate={{ x: X_BY_PHASE[phase] }}
             transition={TRANSITION_BY_PHASE[phase]}
             exit={{ x: X_BY_PHASE.idle, opacity: 0, transition: { duration: 0.2 } }}
-            whileHover={phase === "idle" ? { x: -36, scale: 1.08 } : { scale: 1.05 }}
+            whileHover={phase === "idle" ? { x: 8, scale: 1.08 } : { scale: 1.05 }}
             onClick={handleCharacterClick}
             aria-label="Open Pingu chatbot"
           >
@@ -341,13 +342,13 @@ export default function PinguChatbot() {
                   animate={{ opacity: 1, scale: 1,    y: 0 }}
                   exit={{    opacity: 0, scale: 0.75, y: 8 }}
                   transition={{ type: "spring", stiffness: 260, damping: 20 }}
-                  className="absolute -top-[68px] left-20 z-10 w-34.5 rounded-2xl border-2 border-orange-200 bg-white px-3 py-2 shadow-lg"
+                  className="absolute -top-[68px] right-full mr-2 z-10 w-34.5 rounded-2xl border-2 border-orange-200 bg-white px-3 py-2 shadow-lg"
                 >
                   <p className="text-center text-[11px] font-semibold leading-snug text-gray-800">
                     {bubbleText}
                   </p>
-                  {/* Tail pointing LEFT toward Pingu */}
-                  <div className="absolute -bottom-[9px] left-4 h-4 w-4 rotate-45 border-b-2 border-l-2 border-orange-200 bg-white" />
+                  {/* Tail pointing RIGHT toward Pingu */}
+                  <div className="absolute -bottom-[9px] right-4 h-4 w-4 rotate-45 border-b-2 border-r-2 border-orange-200 bg-white" />
                 </motion.div>
               )}
             </AnimatePresence>
