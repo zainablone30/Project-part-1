@@ -2,12 +2,12 @@
 
 import { motion, useInView } from "motion/react"
 import { useRef, useState } from "react"
-import { 
-  Brain, 
-  Stethoscope, 
-  Globe2, 
-  MapPinned, 
-  Users2, 
+import {
+  Brain,
+  Stethoscope,
+  Globe2,
+  MapPinned,
+  Users2,
   MessageCircle,
   Pill,
   Heart,
@@ -15,6 +15,7 @@ import {
   Activity,
   ChevronRight
 } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 const aiFeatures = [
   {
@@ -72,6 +73,7 @@ export function AIFeaturesSection() {
   const ref = useRef(null)
   const isInView = useInView(ref, { once: true, margin: "-100px" })
   const [activeFeature, setActiveFeature] = useState(aiFeatures[0].id)
+  const router = useRouter()
 
   const currentFeature = aiFeatures.find(f => f.id === activeFeature) || aiFeatures[0]
 
@@ -252,7 +254,10 @@ export function AIFeaturesSection() {
                 Chat naturally with our AI assistant about food, health, and ordering. Ask questions like 
                 &quot;I have a fever, what should I eat?&quot; or &quot;Plan a healthy lunch for my diabetic husband.&quot;
               </p>
-              <button className="px-6 py-3 bg-white text-primary rounded-xl font-semibold hover:bg-white/90 transition-colors">
+              <button
+                onClick={() => router.push("/login")}
+                className="px-6 py-3 bg-white text-primary rounded-xl font-semibold hover:bg-white/90 transition-colors"
+              >
                 Try DastarkhanGPT
               </button>
             </div>

@@ -3,6 +3,8 @@
 import { motion } from "motion/react"
 import { Utensils, Mail, MapPin, Phone, ArrowRight, Facebook, Twitter, Instagram, Linkedin } from "lucide-react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
+import { useState } from "react"
 
 const footerLinks = {
   product: [
@@ -33,6 +35,22 @@ const socialLinks = [
 ]
 
 export function Footer() {
+  const router = useRouter()
+  const [email, setEmail] = useState("")
+  const [subscribed, setSubscribed] = useState(false)
+
+  function handleSubscribe(e: React.FormEvent) {
+    e.preventDefault()
+    if (!email.trim()) return
+    try {
+      const subs = JSON.parse(localStorage.getItem("dk-subscribers") ?? "[]")
+      subs.push({ email: email.trim(), date: new Date().toISOString() })
+      localStorage.setItem("dk-subscribers", JSON.stringify(subs))
+    } catch {}
+    setSubscribed(true)
+    setEmail("")
+  }
+
   return (
     <footer className="bg-foreground text-background">
       {/* CTA Section */}
@@ -64,7 +82,8 @@ export function Footer() {
               transition={{ delay: 0.2 }}
               whileHover={{ scale: 1.02, boxShadow: "0 20px 40px rgba(217, 119, 6, 0.3)" }}
               whileTap={{ scale: 0.98 }}
-              className="group px-8 py-4 bg-primary text-primary-foreground rounded-2xl text-lg font-semibold inline-flex items-center gap-2 shadow-xl"
+              onClick={() => router.push("/signup")}
+            className="group px-8 py-4 bg-primary text-primary-foreground rounded-2xl text-lg font-semibold inline-flex items-center gap-2 shadow-xl"
             >
               Get Started Free
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -179,16 +198,28 @@ export function Footer() {
               <h4 className="font-semibold text-background mb-1">Stay Updated</h4>
               <p className="text-sm text-background/70">Get the latest health tips and special offers</p>
             </div>
-            <div className="flex gap-2">
-              <input
-                type="email"
-                placeholder="Enter your email"
-                className="px-4 py-3 bg-background/10 rounded-xl text-background placeholder:text-background/50 outline-none focus:ring-2 focus:ring-primary w-64"
-              />
-              <button className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors">
-                Subscribe
-              </button>
-            </div>
+            {subscribed ? (
+              <div className="flex items-center gap-2 px-5 py-3 rounded-xl bg-green-500/20 border border-green-500/30 text-green-400 font-semibold text-sm">
+                ✅ Subscribed! Health tips aate rahenge.
+              </div>
+            ) : (
+              <form onSubmit={handleSubscribe} className="flex gap-2">
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  placeholder="Enter your email"
+                  required
+                  className="px-4 py-3 bg-background/10 rounded-xl text-background placeholder:text-background/50 outline-none focus:ring-2 focus:ring-primary w-64"
+                />
+                <button
+                  type="submit"
+                  className="px-6 py-3 bg-primary text-primary-foreground rounded-xl font-semibold hover:bg-primary/90 transition-colors"
+                >
+                  Subscribe
+                </button>
+              </form>
+            )}
           </div>
         </div>
 

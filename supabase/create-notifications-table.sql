@@ -43,7 +43,7 @@ DECLARE
 BEGIN
   IF TG_OP = 'INSERT' THEN
     n_title := 'Order placed';
-    n_detail := COALESCE(NEW.restaurant_name, 'Your order') || ' is pending confirmation.';
+    n_detail := COALESCE(NEW.items->0->>'restaurant_name', 'Your order') || ' mein aapka order place ho gaya.';
   ELSIF TG_OP = 'UPDATE' AND NEW.status IS DISTINCT FROM OLD.status THEN
     CASE NEW.status
       WHEN 'pending' THEN

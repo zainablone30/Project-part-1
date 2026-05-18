@@ -8,9 +8,10 @@ import { OrderMap } from "@/components/dashboard/order-map"
 import {
   Package, Clock, CheckCircle, XCircle,
   ChevronRight, ArrowLeft, Truck, Star,
-  RotateCcw, MapPin, ShoppingBag,
+  RotateCcw, MapPin, ShoppingBag, Smartphone, Copy, CheckCheck,
 } from "lucide-react"
 import { supabase } from "@/lib/supabase"
+import { useCart } from "@/lib/cart-context"
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -39,7 +40,6 @@ type Order = {
   created_at: string
 }
 
-/** restaurant_name is stored inside items JSON since the column doesn't exist on orders table */
 function getRestaurantName(order: Order): string {
   return order.items?.[0]?.restaurant_name ?? "DastarKhan"
 }
@@ -58,11 +58,26 @@ const STATUS_CFG: Record<
   cancelled:  { label: "Cancelled",  urdu: "منسوخ",     Icon: XCircle,      color: "text-red-500",    bg: "bg-red-500/10"     },
 }
 
-// Ordered flow shown in the timeline
 const STATUS_FLOW: OrderStatus[] = ["pending", "confirmed", "preparing", "on_the_way", "delivered"]
-
-// Delays (ms) between each status transition for the demo simulation
 const SIM_DELAYS = [0, 4_000, 12_000, 35_000, 75_000]
+
+// ── Live location hook ───────────────────────────────────────────────────────
+
+function useLiveLocation(active: boolean) {
+  const [pos, setPos] = useState<{ lat: number; lng: number } | null>(null)
+
+  useEffect(() => {
+    if (!active || typeof navigator === "undefined" || !navigator.geolocation) return
+    const id = navigator.geolocation.watchPosition(
+      p => setPos({ lat: p.coords.latitude, lng: p.coords.longitude }),
+      () => {},
+      { enableHighAccuracy: true, maximumAge: 10_000 },
+    )
+    return () => navigator.geolocation.clearWatch(id)
+  }, [active])
+
+  return pos
+}
 
 // ── Delivery simulation hook ─────────────────────────────────────────────────
 
@@ -85,7 +100,7 @@ function useDeliverySimulation(orderId: string | null) {
   }, [orderId])
 }
 
-// ── Status timeline component ────────────────────────────────────────────────
+// ── Status timeline ──────────────────────────────────────────────────────────
 
 function StatusTimeline({ status }: { status: OrderStatus }) {
   if (status === "cancelled") return null
@@ -127,12 +142,116 @@ function StatusTimeline({ status }: { status: OrderStatus }) {
   )
 }
 
+// ── Payment QR section ───────────────────────────────────────────────────────
+
+function PaymentQR({ orderId, total }: { orderId: string; total: number }) {
+  const [copied, setCopied] = useState(false)
+  const [imgErr, setImgErr] = useState(false)
+
+  function copyId() {
+    navigator.clipboard.writeText(orderId).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="rounded-2xl border border-yellow-200 bg-yellow-50 dark:border-yellow-800 dark:bg-yellow-950/30 p-4 space-y-4"
+    >
+      {/* Header */}
+      <div className="flex items-center gap-2">
+        <div className="w-8 h-8 rounded-xl bg-yellow-500 flex items-center justify-center shrink-0">
+          <Smartphone className="w-4 h-4 text-white" />
+        </div>
+        <div>
+          <p className="font-bold text-yellow-800 dark:text-yellow-200 text-sm">Payment Required</p>
+          <p className="text-xs text-yellow-700 dark:text-yellow-300">Easypaisa se payment karein</p>
+        </div>
+      </div>
+
+      {/* Amount + QR */}
+      <div className="flex flex-col sm:flex-row items-center gap-4">
+        {/* QR */}
+        <div className="w-36 h-36 rounded-xl overflow-hidden border-2 border-yellow-200 bg-white flex items-center justify-center shrink-0">
+          {!imgErr ? (
+            <img
+              src="/payment-qr.png"
+              alt="Easypaisa QR"
+              className="w-full h-full object-contain p-1"
+              onError={() => setImgErr(true)}
+            />
+          ) : (
+            <div className="grid grid-cols-3 gap-0.5 opacity-30 p-2">
+              {[...Array(9)].map((_, i) => (
+                <div key={i} className={`rounded ${[0,2,6,8].includes(i) ? "h-6 w-6 bg-black" : i===4 ? "h-4 w-4 bg-black m-1" : "h-3 w-3 bg-gray-400 m-1.5"}`} />
+              ))}
+            </div>
+          )}
+        </div>
+
+        {/* Details */}
+        <div className="flex-1 space-y-2 w-full">
+          <div className="rounded-xl bg-white dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 px-3 py-2">
+            <p className="text-[10px] font-semibold text-yellow-600 uppercase tracking-wide">Amount</p>
+            <p className="text-xl font-bold text-yellow-800 dark:text-yellow-200 tabular-nums">Rs. {total}</p>
+          </div>
+          <div className="rounded-xl bg-white dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-700 px-3 py-2">
+            <p className="text-[10px] font-semibold text-yellow-600 uppercase tracking-wide">Send To</p>
+            <p className="text-sm font-bold text-yellow-800 dark:text-yellow-200">ABDULLAH NASIR</p>
+            <p className="text-xs text-yellow-600 font-mono">*******3395 · Easypaisa</p>
+          </div>
+        </div>
+      </div>
+
+      {/* Instructions */}
+      <ol className="space-y-1 text-xs text-yellow-700 dark:text-yellow-300 list-decimal list-inside">
+        <li>QR scan karein ya number pe send karein: <strong>Rs. {total}</strong></li>
+        <li>Payment ka screenshot lein</li>
+        <li>Screenshot admin ko WhatsApp karein</li>
+      </ol>
+
+      {/* Copy Order ID */}
+      <button
+        onClick={copyId}
+        className="w-full flex items-center justify-between rounded-xl border border-yellow-200 bg-white dark:bg-yellow-900/20 px-3 py-2 hover:bg-yellow-100 dark:hover:bg-yellow-900/40 transition-colors"
+      >
+        <div className="text-left">
+          <p className="text-[10px] text-yellow-600 font-semibold">Order ID (copy)</p>
+          <p className="text-xs font-mono text-yellow-800 dark:text-yellow-200 truncate">{orderId.slice(0, 24)}…</p>
+        </div>
+        {copied
+          ? <CheckCheck className="w-4 h-4 text-green-500 shrink-0" />
+          : <Copy className="w-4 h-4 text-yellow-500 shrink-0" />
+        }
+      </button>
+
+      <p className="text-center text-[11px] text-yellow-600 dark:text-yellow-400 font-medium">
+        🔐 Payment verify hone ke baad order <strong>confirm</strong> ho jayega
+      </p>
+    </motion.div>
+  )
+}
+
 // ── Order detail panel ────────────────────────────────────────────────────────
 
-function OrderDetail({ order }: { order: Order }) {
+function OrderDetail({
+  order,
+  liveLocation,
+  onReorder,
+}: {
+  order: Order
+  liveLocation: { lat: number; lng: number } | null
+  onReorder: () => void
+}) {
   const { Icon, label, color, bg } = STATUS_CFG[order.status]
   const isActive = !["delivered", "cancelled"].includes(order.status)
-  const showMap  = isActive && order.customer_lat && order.customer_lng && order.restaurant_lat && order.restaurant_lng
+  const isPending = order.status === "pending"
+  const customerLat = liveLocation?.lat ?? order.customer_lat
+  const customerLng = liveLocation?.lng ?? order.customer_lng
+  const showMap = isActive && !isPending && customerLat && customerLng && order.restaurant_lat && order.restaurant_lng
   const restaurantName = getRestaurantName(order)
   const eta = order.estimated_minutes ?? 30
   const subtotal = order.items.reduce((s, i) => s + i.price * i.quantity, 0)
@@ -140,6 +259,11 @@ function OrderDetail({ order }: { order: Order }) {
 
   return (
     <div className="space-y-4">
+      {/* Payment QR for pending orders */}
+      {isPending && (
+        <PaymentQR orderId={order.id} total={order.total} />
+      )}
+
       {/* Map */}
       {showMap && (
         <motion.div
@@ -149,8 +273,8 @@ function OrderDetail({ order }: { order: Order }) {
           className="rounded-3xl border border-border/50 overflow-hidden h-64"
         >
           <OrderMap
-            customerLat={order.customer_lat!}
-            customerLng={order.customer_lng!}
+            customerLat={customerLat!}
+            customerLng={customerLng!}
             restaurantLat={order.restaurant_lat!}
             restaurantLng={order.restaurant_lng!}
             restaurantName={restaurantName}
@@ -171,6 +295,12 @@ function OrderDetail({ order }: { order: Order }) {
                 {order.restaurant_area}
               </p>
             )}
+            {liveLocation && isActive && (
+              <p className="text-[10px] text-green-600 flex items-center gap-1 mt-0.5 font-medium">
+                <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse inline-block" />
+                Live location active
+              </p>
+            )}
           </div>
           <span className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold shrink-0 ${bg} ${color}`}>
             <Icon className="w-3.5 h-3.5" />
@@ -186,14 +316,12 @@ function OrderDetail({ order }: { order: Order }) {
         )}
 
         {/* ETA */}
-        {isActive && (
+        {isActive && !isPending && (
           <div className="rounded-2xl bg-orange-50 border border-orange-100 px-4 py-3 flex items-center gap-3">
             <Truck className="w-5 h-5 text-orange-500 shrink-0" />
             <div>
               <p className="text-xs text-orange-700 font-semibold">Estimated Delivery</p>
-              <p className="text-sm font-bold text-orange-800">
-                {eta}–{eta + 10} min
-              </p>
+              <p className="text-sm font-bold text-orange-800">{eta}–{eta + 10} min</p>
             </div>
           </div>
         )}
@@ -231,7 +359,10 @@ function OrderDetail({ order }: { order: Order }) {
 
         {/* Reorder */}
         {order.status === "delivered" && (
-          <button className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary/10 text-primary font-semibold py-3 hover:bg-primary/20 transition-colors text-sm">
+          <button
+            onClick={onReorder}
+            className="w-full flex items-center justify-center gap-2 rounded-2xl bg-primary/10 text-primary font-semibold py-3 hover:bg-primary/20 transition-colors text-sm"
+          >
             <RotateCcw className="w-4 h-4" />
             Dobara Order Karo
           </button>
@@ -241,20 +372,24 @@ function OrderDetail({ order }: { order: Order }) {
   )
 }
 
-// ── Page inner (needs useSearchParams — wrapped in Suspense below) ────────────
+// ── Page inner ────────────────────────────────────────────────────────────────
 
 function OrdersPageInner() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const newOrderId = searchParams.get("new")
+  const { addItem, openCart } = useCart()
 
-  const [orders, setOrders]     = useState<Order[]>([])
+  const [orders, setOrders]         = useState<Order[]>([])
   const [selectedId, setSelectedId] = useState<string | null>(newOrderId)
-  const [loading, setLoading]   = useState(true)
+  const [loading, setLoading]       = useState(true)
 
   const selected = orders.find(o => o.id === selectedId) ?? null
+  const isActiveOrder = selected ? !["delivered", "cancelled"].includes(selected.status) : false
 
-  // Simulate delivery progression for a newly placed order
+  // Live GPS — only active when viewing an active order
+  const liveLocation = useLiveLocation(isActiveOrder)
+
   useDeliverySimulation(newOrderId)
 
   const fetchOrders = useCallback(async () => {
@@ -276,7 +411,7 @@ function OrdersPageInner() {
 
   useEffect(() => { fetchOrders() }, [fetchOrders])
 
-  // Real-time subscription — keeps order status live
+  // Realtime order status updates
   useEffect(() => {
     const ch = supabase
       .channel("orders-realtime")
@@ -292,6 +427,20 @@ function OrdersPageInner() {
       .subscribe()
     return () => { supabase.removeChannel(ch) }
   }, [])
+
+  function handleReorder(order: Order) {
+    order.items.forEach(item => {
+      addItem({
+        foodId:         item.food_id,
+        name:           item.name,
+        price:          item.price,
+        image:          item.image ?? "/placeholder.jpg",
+        restaurantName: getRestaurantName(order),
+        restaurantArea: order.restaurant_area ?? "",
+      })
+    })
+    openCart()
+  }
 
   const activeOrders = orders.filter(o => !["delivered", "cancelled"].includes(o.status))
 
@@ -447,7 +596,11 @@ function OrdersPageInner() {
                     exit={{ opacity: 0, scale: 0.97 }}
                     transition={{ duration: 0.18 }}
                   >
-                    <OrderDetail order={selected} />
+                    <OrderDetail
+                      order={selected}
+                      liveLocation={liveLocation}
+                      onReorder={() => handleReorder(selected)}
+                    />
                   </motion.div>
                 ) : (
                   <motion.div
@@ -471,7 +624,7 @@ function OrdersPageInner() {
   )
 }
 
-// ── Page export (Suspense for useSearchParams) ────────────────────────────────
+// ── Page export ───────────────────────────────────────────────────────────────
 
 export default function OrdersPage() {
   return (
